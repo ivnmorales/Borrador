@@ -1,0 +1,43 @@
+using Borrador.Clases;
+using Borrador.Models;
+using System.Collections.Generic;
+using System.Web.Http;
+
+namespace Borrador.Controllers
+{
+    [RoutePrefix("api/TIPOS_PROPIEDADs")]
+    public class TIPOS_PROPIEDADsController : ApiController
+    {
+        [HttpGet]
+        [Route("ConsultarTodos")]
+        public List<TIPOS_PROPIEDAD> ConsultarTodos() => new clsTIPOS_PROPIEDAD().ConsultarTodos();
+
+        [HttpGet]
+        [Route("Consultar")]
+        public TIPOS_PROPIEDAD Consultar(int id) => new clsTIPOS_PROPIEDAD().Consultar(id);
+
+        [HttpPost]
+        [Route("Insertar")]
+        public string Insertar([FromBody] TIPOS_PROPIEDAD entidad)
+        {
+            var clase = new clsTIPOS_PROPIEDAD { entidad = entidad };
+            return clase.Insertar();
+        }
+
+        [HttpPut]
+        [Route("Actualizar")]
+        public string Actualizar([FromBody] TIPOS_PROPIEDAD entidad)
+        {
+            var clase = new clsTIPOS_PROPIEDAD { entidad = entidad };
+            return clase.Actualizar();
+        }
+
+        [HttpDelete]
+        [Route("Eliminar")]
+        public string Eliminar([FromBody] TIPOS_PROPIEDAD entidad)
+        {
+            var clase = new clsTIPOS_PROPIEDAD { entidad = entidad };
+            return clase.Eliminar();
+        }
+    }
+}
