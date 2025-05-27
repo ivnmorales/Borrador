@@ -10,34 +10,65 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<CIUDADE> ConsultarTodos() => new clsCIUDADE().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsCIUDAD().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public CIUDADE Consultar(int id) => new clsCIUDADE().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var ciudad = new clsCIUDAD().Consultar(id);
+            if (ciudad == null)
+                return NotFound();
+            return Ok(ciudad);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] CIUDADE entidad)
+        public IHttpActionResult Insertar([FromBody] CIUDADE entidad)
         {
-            var clase = new clsCIUDADE { entidad = entidad };
-            return clase.Insertar();
+            if (entidad == null)
+                return BadRequest("Datos no válidos");
+
+            var clase = new clsCIUDAD { entidad = entidad };
+            var resultado = clase.Insertar();
+
+            return resultado.Contains("Error") || resultado.Contains("Ya existe")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] CIUDADE entidad)
+        public IHttpActionResult Actualizar([FromBody] CIUDADE entidad)
         {
-            var clase = new clsCIUDADE { entidad = entidad };
-            return clase.Actualizar();
+            if (entidad == null || entidad.ID_CIUDAD <= 0)
+                return BadRequest("Datos no válidos");
+
+            var clase = new clsCIUDAD { entidad = entidad };
+            var resultado = clase.Actualizar();
+
+            return resultado.Contains("Error") || resultado.Contains("Ya existe") || resultado.Contains("inválidos")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] CIUDADE entidad)
+        public IHttpActionResult Eliminar([FromBody] CIUDADE entidad)
         {
-            var clase = new clsCIUDADE { entidad = entidad };
-            return clase.Eliminar();
+            if (entidad == null || entidad.ID_CIUDAD <= 0)
+                return BadRequest("ID no válido para eliminación");
+
+            var clase = new clsCIUDAD { entidad = entidad };
+            var resultado = clase.Eliminar();
+
+            return resultado.Contains("Error") || resultado.Contains("no encontrada")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
     }
 }

@@ -5,39 +5,66 @@ using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/DETALLES_ORDENs")]
+    [RoutePrefix("api/detalles_orden")]
     public class DETALLES_ORDENsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<DETALLES_ORDEN> ConsultarTodos() => new clsDETALLES_ORDEN().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsDETALLES_ORDEN().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public DETALLES_ORDEN Consultar(int id) => new clsDETALLES_ORDEN().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var detalle = new clsDETALLES_ORDEN().Consultar(id);
+            return detalle == null ? (IHttpActionResult)NotFound() : Ok(detalle);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] DETALLES_ORDEN entidad)
+        public IHttpActionResult Insertar([FromBody] DETALLES_ORDEN entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos de entrada inválidos.");
+
             var clase = new clsDETALLES_ORDEN { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] DETALLES_ORDEN entidad)
+        public IHttpActionResult Actualizar([FromBody] DETALLES_ORDEN entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos de entrada inválidos.");
+
             var clase = new clsDETALLES_ORDEN { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+
+            return resultado.StartsWith("Error") || resultado.Contains("no se encontró")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] DETALLES_ORDEN entidad)
+        public IHttpActionResult Eliminar([FromBody] DETALLES_ORDEN entidad)
         {
+            if (entidad == null || entidad.ID_DETALLE <= 0)
+                return BadRequest("ID inválido para eliminación.");
+
             var clase = new clsDETALLES_ORDEN { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+
+            return resultado.StartsWith("Error") || resultado.Contains("no se encontró")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
     }
 }

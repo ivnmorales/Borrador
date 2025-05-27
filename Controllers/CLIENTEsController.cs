@@ -1,6 +1,5 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
@@ -10,34 +9,65 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<CLIENTE> ConsultarTodos() => new clsCLIENTE().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsCLIENTE().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public CLIENTE Consultar(int id) => new clsCLIENTE().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var cliente = new clsCLIENTE().Consultar(id);
+            if (cliente == null)
+                return NotFound();
+            return Ok(cliente);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] CLIENTE entidad)
+        public IHttpActionResult Insertar([FromBody] CLIENTE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos de entrada no válidos.");
+
             var clase = new clsCLIENTE { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+
+            return resultado.Contains("Error") || resultado.Contains("Ya existe")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] CLIENTE entidad)
+        public IHttpActionResult Actualizar([FromBody] CLIENTE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos de entrada no válidos.");
+
             var clase = new clsCLIENTE { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+
+            return resultado.Contains("Error") || resultado.Contains("no encontrado") || resultado.Contains("Ya existe")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] CLIENTE entidad)
+        public IHttpActionResult Eliminar([FromBody] CLIENTE entidad)
         {
+            if (entidad == null || entidad.ID_CLIENTE <= 0)
+                return BadRequest("ID no válido para eliminación.");
+
             var clase = new clsCLIENTE { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+
+            return resultado.Contains("Error") || resultado.Contains("No se encontró")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
     }
 }

@@ -8,56 +8,89 @@ namespace Borrador.Clases
 {
     public class clsTIPOS_PROPIEDAD
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private readonly INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public TIPOS_PROPIEDAD entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<TIPOS_PROPIEDAD>().Add(entidad);
+                if (db.TIPOS_PROPIEDAD.Any(t => t.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper()))
+                    return "Ya existe un tipo de propiedad con esa descripción.";
+
+                db.TIPOS_PROPIEDAD.Add(entidad);
                 db.SaveChanges();
-                return "TIPOS_PROPIEDAD insertado correctamente";
+                return "Tipo de propiedad insertado correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al insertar TIPOS_PROPIEDAD: " + ex.Message;
+                return "Error al insertar tipo de propiedad: " + ex.Message;
             }
         }
 
         public string Actualizar()
         {
-            db.Set<TIPOS_PROPIEDAD>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "TIPOS_PROPIEDAD actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_TIPO_PROPIEDAD <= 0)
+                    return "Datos inválidos para actualizar.";
+
+                bool duplicado = db.TIPOS_PROPIEDAD.Any(t =>
+                    t.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper() &&
+                    t.ID_TIPO_PROPIEDAD != entidad.ID_TIPO_PROPIEDAD);
+
+                if (duplicado)
+                    return "Ya existe otro tipo de propiedad con la misma descripción.";
+
+                db.TIPOS_PROPIEDAD.AddOrUpdate(entidad);
+                db.SaveChanges();
+                return "Tipo de propiedad actualizado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar tipo de propiedad: " + ex.Message;
+            }
         }
 
         public TIPOS_PROPIEDAD Consultar(int id)
         {
-            return db.Set<TIPOS_PROPIEDAD>().Find(id);
+            try
+            {
+                return db.TIPOS_PROPIEDAD.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<TIPOS_PROPIEDAD> ConsultarTodos()
         {
-            return db.Set<TIPOS_PROPIEDAD>().ToList();
+            try
+            {
+                return db.TIPOS_PROPIEDAD.OrderBy(t => t.DESCRIPCION).ToList();
+            }
+            catch
+            {
+                return new List<TIPOS_PROPIEDAD>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<TIPOS_PROPIEDAD>().Find(entidad.ID_TIPO_PROPIEDAD);
-                if (obj != null)
-                {
-                    db.Set<TIPOS_PROPIEDAD>().Remove(obj);
-                    db.SaveChanges();
-                    return "TIPOS_PROPIEDAD eliminado correctamente";
-                }
-                return "No se encontró el TIPOS_PROPIEDAD";
+                var obj = db.TIPOS_PROPIEDAD.Find(entidad.ID_TIPO_PROPIEDAD);
+                if (obj == null)
+                    return "Tipo de propiedad no encontrado.";
+
+                db.TIPOS_PROPIEDAD.Remove(obj);
+                db.SaveChanges();
+                return "Tipo de propiedad eliminado correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar TIPOS_PROPIEDAD: " + ex.Message;
+                return "Error al eliminar tipo de propiedad: " + ex.Message;
             }
         }
     }

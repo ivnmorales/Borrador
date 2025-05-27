@@ -1,63 +1,128 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Migrations;
+using System.Data.Entity;
 using Borrador.Models;
 
 namespace Borrador.Clases
 {
     public class clsARRIENDO
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public ARRIENDO entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<ARRIENDO>().Add(entidad);
-                db.SaveChanges();
-                return "ARRIENDO insertado correctamente";
+                using (var db = new INMOBILIARIAEntities())
+                {
+                    if (entidad == null)
+                        return "Datos de arriendo no válidos.";
+
+                    // Validación de existencia por claves foráneas
+                    if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
+                        return "La propiedad especificada no existe.";
+                    if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_INQUILINO))
+                        return "El inquilino especificado no existe.";
+                    if (!db.EMPLEADOS.Any(e => e.ID_EMPLEADO == entidad.ID_EMPLEADO))
+                        return "El empleado especificado no existe.";
+
+                    db.ARRIENDOS.Add(entidad);
+                    db.SaveChanges();
+                    return "Arriendo insertado correctamente";
+                }
             }
             catch (Exception ex)
             {
-                return "Error al insertar ARRIENDO: " + ex.Message;
+                return "Error al insertar arriendo: " + ex.Message;
             }
         }
 
         public string Actualizar()
         {
-            db.Set<ARRIENDO>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "ARRIENDO actualizado correctamente";
+            try
+            {
+                using (var db = new INMOBILIARIAEntities())
+                {
+                    if (entidad == null || entidad.ID_ARRIENDO <= 0)
+                        return "Datos de arriendo no válidos.";
+
+                    var existente = db.ARRIENDOS.Find(entidad.ID_ARRIENDO);
+                    if (existente == null)
+                        return "No se encontró el arriendo.";
+
+                    // Validaciones de claves foráneas
+                    if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
+                        return "La propiedad especificada no existe.";
+                    if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_INQUILINO))
+                        return "El inquilino especificado no existe.";
+                    if (!db.EMPLEADOS.Any(e => e.ID_EMPLEADO == entidad.ID_EMPLEADO))
+                        return "El empleado especificado no existe.";
+
+                    db.Entry(entidad).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return "Arriendo actualizado correctamente";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar arriendo: " + ex.Message;
+            }
         }
 
         public ARRIENDO Consultar(int id)
         {
-            return db.Set<ARRIENDO>().Find(id);
+            try
+            {
+                using (var db = new INMOBILIARIAEntities())
+                {
+                    return db.ARRIENDOS.Find(id);
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<ARRIENDO> ConsultarTodos()
         {
-            return db.Set<ARRIENDO>().ToList();
+            try
+            {
+                using (var db = new INMOBILIARIAEntities())
+                {
+                    return db.ARRIENDOS
+                             .Include(a => a.PROPIEDADE)
+                             .Include(a => a.CLIENTE)
+                             .Include(a => a.EMPLEADO)
+                             .OrderBy(a => a.FECHA_INICIO)
+                             .ToList();
+                }
+            }
+            catch
+            {
+                return new List<ARRIENDO>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<ARRIENDO>().Find(entidad.ID_ARRIENDO);
-                if (obj != null)
+                using (var db = new INMOBILIARIAEntities())
                 {
-                    db.Set<ARRIENDO>().Remove(obj);
+                    var existente = db.ARRIENDOS.Find(entidad.ID_ARRIENDO);
+                    if (existente == null)
+                        return "Arriendo no encontrado.";
+
+                    db.ARRIENDOS.Remove(existente);
                     db.SaveChanges();
-                    return "ARRIENDO eliminado correctamente";
+                    return "Arriendo eliminado correctamente";
                 }
-                return "No se encontró el ARRIENDO";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar ARRIENDO: " + ex.Message;
+                return "Error al eliminar arriendo: " + ex.Message;
             }
         }
     }

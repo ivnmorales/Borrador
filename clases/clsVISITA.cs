@@ -8,56 +8,89 @@ namespace Borrador.Clases
 {
     public class clsVISITA
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private readonly INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public VISITA entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<VISITA>().Add(entidad);
+                if (entidad == null)
+                    return "Entidad no válida para inserción.";
+
+                db.VISITAS.Add(entidad);
                 db.SaveChanges();
-                return "VISITA insertado correctamente";
+                return "VISITA insertada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al insertar VISITA: " + ex.Message;
+                return $"Error al insertar VISITA: {ex.Message}";
             }
         }
 
         public string Actualizar()
         {
-            db.Set<VISITA>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "VISITA actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_VISITA <= 0)
+                    return "Entidad no válida para actualización.";
+
+                var existente = db.VISITAS.Find(entidad.ID_VISITA);
+                if (existente == null)
+                    return "VISITA no encontrada para actualizar.";
+
+                db.VISITAS.AddOrUpdate(entidad);
+                db.SaveChanges();
+                return "VISITA actualizada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error al actualizar VISITA: {ex.Message}";
+            }
         }
 
         public VISITA Consultar(int id)
         {
-            return db.Set<VISITA>().Find(id);
+            try
+            {
+                return db.VISITAS.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<VISITA> ConsultarTodos()
         {
-            return db.Set<VISITA>().ToList();
+            try
+            {
+                return db.VISITAS.OrderBy(v => v.ID_VISITA).ToList();
+            }
+            catch
+            {
+                return new List<VISITA>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<VISITA>().Find(entidad.ID_VISITA);
-                if (obj != null)
-                {
-                    db.Set<VISITA>().Remove(obj);
-                    db.SaveChanges();
-                    return "VISITA eliminado correctamente";
-                }
-                return "No se encontró el VISITA";
+                if (entidad == null || entidad.ID_VISITA <= 0)
+                    return "Entidad no válida para eliminación.";
+
+                var obj = db.VISITAS.Find(entidad.ID_VISITA);
+                if (obj == null)
+                    return "VISITA no encontrada.";
+
+                db.VISITAS.Remove(obj);
+                db.SaveChanges();
+                return "VISITA eliminada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar VISITA: " + ex.Message;
+                return $"Error al eliminar VISITA: {ex.Message}";
             }
         }
     }

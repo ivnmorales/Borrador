@@ -1,43 +1,69 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/ORDENES_COMPRAs")]
+    [RoutePrefix("api/ordenes_compra")]
     public class ORDENES_COMPRAsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<ORDENES_COMPRA> ConsultarTodos() => new clsORDENES_COMPRA().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsORDENES_COMPRA().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public ORDENES_COMPRA Consultar(int id) => new clsORDENES_COMPRA().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var orden = new clsORDENES_COMPRA().Consultar(id);
+            return orden == null ? (IHttpActionResult)NotFound() : Ok(orden);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] ORDENES_COMPRA entidad)
+        public IHttpActionResult Insertar([FromBody] ORDENES_COMPRA entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos para inserción.");
+
             var clase = new clsORDENES_COMPRA { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] ORDENES_COMPRA entidad)
+        public IHttpActionResult Actualizar([FromBody] ORDENES_COMPRA entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos para actualización.");
+
             var clase = new clsORDENES_COMPRA { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+
+            return resultado.StartsWith("Error") || resultado.Contains("no encontrado")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] ORDENES_COMPRA entidad)
+        public IHttpActionResult Eliminar([FromBody] ORDENES_COMPRA entidad)
         {
+            if (entidad == null || entidad.ID_ORDEN <= 0)
+                return BadRequest("ID inválido para eliminación.");
+
             var clase = new clsORDENES_COMPRA { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+
+            return resultado.StartsWith("Error") || resultado.Contains("no encontrada")
+                ? (IHttpActionResult)BadRequest(resultado)
+                : Ok(resultado);
         }
     }
 }

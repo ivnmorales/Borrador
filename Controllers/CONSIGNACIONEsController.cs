@@ -1,6 +1,5 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
@@ -10,34 +9,69 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<CONSIGNACIONE> ConsultarTodos() => new clsCONSIGNACIONE().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsCONSIGNACIONE().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public CONSIGNACIONE Consultar(int id) => new clsCONSIGNACIONE().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var obj = new clsCONSIGNACIONE().Consultar(id);
+            if (obj == null)
+                return NotFound();
+
+            return Ok(obj);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] CONSIGNACIONE entidad)
+        public IHttpActionResult Insertar([FromBody] CONSIGNACIONE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos de entrada no válidos.");
+
             var clase = new clsCONSIGNACIONE { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+
+            if (resultado.Contains("insertado correctamente"))
+                return Ok(resultado);
+            else
+                return BadRequest(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] CONSIGNACIONE entidad)
+        public IHttpActionResult Actualizar([FromBody] CONSIGNACIONE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos no válidos para actualizar.");
+
             var clase = new clsCONSIGNACIONE { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+
+            if (resultado.Contains("actualizada"))
+                return Ok(resultado);
+            else
+                return BadRequest(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] CONSIGNACIONE entidad)
+        public IHttpActionResult Eliminar([FromBody] CONSIGNACIONE entidad)
         {
+            if (entidad == null || entidad.ID_CONSIGNACION <= 0)
+                return BadRequest("ID de consignación inválido.");
+
             var clase = new clsCONSIGNACIONE { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+
+            if (resultado.Contains("eliminado correctamente"))
+                return Ok(resultado);
+            else
+                return BadRequest(resultado);
         }
     }
 }

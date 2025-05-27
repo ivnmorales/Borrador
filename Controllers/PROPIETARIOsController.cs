@@ -1,43 +1,62 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/PROPIETARIOs")]
+    [RoutePrefix("api/propietarios")]
     public class PROPIETARIOsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<PROPIETARIO> ConsultarTodos() => new clsPROPIETARIO().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsPROPIETARIO().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public PROPIETARIO Consultar(int id) => new clsPROPIETARIO().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var entidad = new clsPROPIETARIO().Consultar(id);
+            return entidad == null ? (IHttpActionResult)NotFound() : Ok(entidad);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] PROPIETARIO entidad)
+        public IHttpActionResult Insertar([FromBody] PROPIETARIO entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos no válidos para insertar.");
+
             var clase = new clsPROPIETARIO { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] PROPIETARIO entidad)
+        public IHttpActionResult Actualizar([FromBody] PROPIETARIO entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos no válidos para actualizar.");
+
             var clase = new clsPROPIETARIO { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] PROPIETARIO entidad)
+        public IHttpActionResult Eliminar([FromBody] PROPIETARIO entidad)
         {
+            if (entidad == null || entidad.ID_PROPIETARIO <= 0)
+                return BadRequest("ID inválido para eliminar.");
+
             var clase = new clsPROPIETARIO { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
     }
 }

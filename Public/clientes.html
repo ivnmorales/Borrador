@@ -1,0 +1,141 @@
+﻿<!-- clientes.html -->
+<!-- CRUD completo para CLIENTES -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes - Inmobiliaria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <h2 class="mb-4">Gestión de Clientes</h2>
+        <button class="btn btn-success mb-3" onclick="mostrarFormulario()">Agregar Cliente</button>
+        <table class="table table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Identificación</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Teléfono</th>
+                    <th>Email</th>
+                    <th>Dirección</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-clientes"></tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalCliente" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formCliente">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="ID_CLIENTE">
+                        <input class="form-control mb-2" id="IDENTIFICACION" placeholder="Identificación" required>
+                        <input class="form-control mb-2" id="NOMBRES" placeholder="Nombres" required>
+                        <input class="form-control mb-2" id="APELLIDOS" placeholder="Apellidos" required>
+                        <input class="form-control mb-2" id="TELEFONO" placeholder="Teléfono">
+                        <input class="form-control mb-2" id="EMAIL" placeholder="Email">
+                        <input class="form-control mb-2" id="DIRECCION" placeholder="Dirección">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+const API = "https://localhost:44375/api/CLIENTEs";
+let modal = new bootstrap.Modal(document.getElementById("modalCliente"));
+
+function getHeaders() {
+    return { "Content-Type": "application/json", "Authorization": `Bearer ${localStorage.getItem("token")}` };
+}
+
+function mostrarClientes() {
+    fetch(`${API}/ConsultarTodos`, { headers: getHeaders() })
+    .then(res => res.json())
+    .then(data => {
+        let html = data.map(c => `
+            <tr>
+                <td>${c.ID_CLIENTE}</td>
+                <td>${c.IDENTIFICACION}</td>
+                <td>${c.NOMBRES}</td>
+                <td>${c.APELLIDOS}</td>
+                <td>${c.TELEFONO ?? '-'}</td>
+                <td>${c.EMAIL ?? '-'}</td>
+                <td>${c.DIRECCION ?? '-'}</td>
+                <td>
+                    <button class='btn btn-warning btn-sm' onclick='editar(${JSON.stringify(c)})'>Editar</button>
+                    <button class='btn btn-danger btn-sm' onclick='eliminar(${c.ID_CLIENTE})'>Eliminar</button>
+                </td>
+            </tr>`).join("");
+        document.getElementById("tabla-clientes").innerHTML = html;
+    });
+}
+
+function mostrarFormulario() {
+    document.getElementById("formCliente").reset();
+    document.getElementById("ID_CLIENTE").value = "";
+    modal.show();
+}
+
+document.getElementById("formCliente").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const id = parseInt(document.getElementById("ID_CLIENTE").value) || 0;
+    const cliente = {
+        ID_CLIENTE: id,
+        IDENTIFICACION: IDENTIFICACION.value,
+        NOMBRES: NOMBRES.value,
+        APELLIDOS: APELLIDOS.value,
+        TELEFONO: TELEFONO.value,
+        EMAIL: EMAIL.value,
+        DIRECCION: DIRECCION.value
+    };
+    const metodo = id > 0 ? "PUT" : "POST";
+    const ruta = id > 0 ? "Actualizar" : "Insertar";
+
+    fetch(`${API}/${ruta}`, {
+        method: metodo,
+        headers: getHeaders(),
+        body: JSON.stringify(cliente)
+    }).then(() => { modal.hide(); mostrarClientes(); });
+});
+
+function editar(c) {
+    ID_CLIENTE.value = c.ID_CLIENTE;
+    IDENTIFICACION.value = c.IDENTIFICACION;
+    NOMBRES.value = c.NOMBRES;
+    APELLIDOS.value = c.APELLIDOS;
+    TELEFONO.value = c.TELEFONO;
+    EMAIL.value = c.EMAIL;
+    DIRECCION.value = c.DIRECCION;
+    modal.show();
+}
+
+function eliminar(id) {
+    if (!confirm("¿Eliminar cliente?")) return;
+    fetch(`${API}/Eliminar`, {
+        method: "DELETE",
+        headers: getHeaders(),
+        body: JSON.stringify({ ID_CLIENTE: id })
+    }).then(() => mostrarClientes());
+}
+
+mostrarClientes();
+    </script>
+</body>
+</html>

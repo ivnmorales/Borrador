@@ -8,56 +8,86 @@ namespace Borrador.Clases
 {
     public class clsVENTA
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private readonly INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public VENTA entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<VENTA>().Add(entidad);
+                if (entidad == null)
+                    return "Entidad no válida.";
+
+                db.VENTAS.Add(entidad);
                 db.SaveChanges();
-                return "VENTA insertado correctamente";
+                return "Venta insertada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al insertar VENTA: " + ex.Message;
+                return "Error al insertar venta: " + ex.Message;
             }
         }
 
         public string Actualizar()
         {
-            db.Set<VENTA>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "VENTA actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_VENTA <= 0)
+                    return "Entidad no válida para actualizar.";
+
+                var existente = db.VENTAS.Find(entidad.ID_VENTA);
+                if (existente == null)
+                    return "Venta no encontrada.";
+
+                db.VENTAS.AddOrUpdate(entidad);
+                db.SaveChanges();
+                return "Venta actualizada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar venta: " + ex.Message;
+            }
         }
 
         public VENTA Consultar(int id)
         {
-            return db.Set<VENTA>().Find(id);
+            try
+            {
+                return db.VENTAS.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<VENTA> ConsultarTodos()
         {
-            return db.Set<VENTA>().ToList();
+            try
+            {
+                return db.VENTAS.OrderBy(v => v.ID_VENTA).ToList();
+            }
+            catch
+            {
+                return new List<VENTA>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<VENTA>().Find(entidad.ID_VENTA);
-                if (obj != null)
-                {
-                    db.Set<VENTA>().Remove(obj);
-                    db.SaveChanges();
-                    return "VENTA eliminado correctamente";
-                }
-                return "No se encontró el VENTA";
+                var obj = db.VENTAS.Find(entidad.ID_VENTA);
+                if (obj == null)
+                    return "Venta no encontrada.";
+
+                db.VENTAS.Remove(obj);
+                db.SaveChanges();
+                return "Venta eliminada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar VENTA: " + ex.Message;
+                return "Error al eliminar venta: " + ex.Message;
             }
         }
     }

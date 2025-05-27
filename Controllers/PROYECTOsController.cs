@@ -1,43 +1,62 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/PROYECTOs")]
+    [RoutePrefix("api/proyectos")]
     public class PROYECTOsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<PROYECTO> ConsultarTodos() => new clsPROYECTO().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsPROYECTO().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public PROYECTO Consultar(int id) => new clsPROYECTO().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var proyecto = new clsPROYECTO().Consultar(id);
+            return proyecto == null ? (IHttpActionResult)NotFound() : Ok(proyecto);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] PROYECTO entidad)
+        public IHttpActionResult Insertar([FromBody] PROYECTO entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos.");
+
             var clase = new clsPROYECTO { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] PROYECTO entidad)
+        public IHttpActionResult Actualizar([FromBody] PROYECTO entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos.");
+
             var clase = new clsPROYECTO { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] PROYECTO entidad)
+        public IHttpActionResult Eliminar([FromBody] PROYECTO entidad)
         {
+            if (entidad == null || entidad.ID_PROYECTO <= 0)
+                return BadRequest("ID inválido.");
+
             var clase = new clsPROYECTO { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
     }
 }

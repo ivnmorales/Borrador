@@ -10,34 +10,50 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<ARRIENDO> ConsultarTodos() => new clsARRIENDO().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsARRIENDO().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public ARRIENDO Consultar(int id) => new clsARRIENDO().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var arriendo = new clsARRIENDO().Consultar(id);
+            if (arriendo == null)
+                return NotFound();
+            return Ok(arriendo);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] ARRIENDO entidad)
+        public IHttpActionResult Insertar([FromBody] ARRIENDO entidad)
         {
             var clase = new clsARRIENDO { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] ARRIENDO entidad)
+        public IHttpActionResult Actualizar([FromBody] ARRIENDO entidad)
         {
             var clase = new clsARRIENDO { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] ARRIENDO entidad)
+        public IHttpActionResult Eliminar([FromBody] ARRIENDO entidad)
         {
             var clase = new clsARRIENDO { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
     }
 }

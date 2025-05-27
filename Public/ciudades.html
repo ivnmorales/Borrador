@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Ciudades</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 2rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="header d-flex justify-content-between align-items-center">
+            <h4>Gestión de Ciudades</h4>
+            <button class="btn btn-primary" onclick="mostrarFormulario()">Agregar Ciudad</button>
+        </div>
+        <div class="content">
+            <div id="mensaje" class="alert d-none"></div>
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Departamento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-ciudades"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalCiudad" tabindex="-1" aria-labelledby="modalCiudadLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formCiudad">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalCiudadLabel">Ciudad</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="ID_CIUDAD">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" id="NOMBRE" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Departamento</label>
+                            <input type="text" id="DEPARTAMENTO" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    const API = "https://localhost:44375/api/CIUDADEs";
+    let modal = new bootstrap.Modal(document.getElementById("modalCiudad"));
+
+    function getHeaders() {
+        const token = localStorage.getItem("token");
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        };
+    }
+
+    if (!localStorage.getItem("token")) {
+        alert("Sesión no iniciada. Redirigiendo al login...");
+        window.location.href = "login.html";
+    }
+
+    function mostrarCiudades() {
+        fetch(`${API}/ConsultarTodos`, { headers: getHeaders() })
+            .then(res => res.ok ? res.json() : Promise.reject("Token inválido o error de servidor"))
+            .then(data => {
+                let html = data.map(c => `
+                    <tr>
+                        <td>${c.ID_CIUDAD}</td>
+                        <td>${c.NOMBRE}</td>
+                        <td>${c.DEPARTAMENTO}</td>
+                        <td>
+                            <button class='btn btn-sm btn-warning me-1' onclick='editar(${JSON.stringify(c)})'>Editar</button>
+                            <button class='btn btn-sm btn-danger' onclick='eliminar(${c.ID_CIUDAD})'>Eliminar</button>
+                        </td>
+                    </tr>`).join("");
+                document.getElementById("tabla-ciudades").innerHTML = html;
+            })
+            .catch(err => {
+                alert("Error al cargar las ciudades: " + err);
+                localStorage.clear();
+                window.location.href = "login.html";
+            });
+    }
+
+    function mostrarFormulario() {
+        document.getElementById("formCiudad").reset();
+        document.getElementById("ID_CIUDAD").value = "";
+        modal.show();
+    }
+
+    document.getElementById("formCiudad").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const id = parseInt(document.getElementById("ID_CIUDAD").value) || 0;
+
+        const ciudad = {
+            ID_CIUDAD: id,
+            NOMBRE: document.getElementById("NOMBRE").value.trim(),
+            DEPARTAMENTO: document.getElementById("DEPARTAMENTO").value.trim()
+        };
+
+        const metodo = id > 0 ? "PUT" : "POST";
+        const ruta = id > 0 ? "Actualizar" : "Insertar";
+
+        fetch(`${API}/${ruta}`, {
+            method: metodo,
+            headers: getHeaders(),
+            body: JSON.stringify(ciudad)
+        })
+            .then(res => res.ok ? res : res.json().then(err => Promise.reject(err.message)))
+            .then(() => {
+                modal.hide();
+                mostrarCiudades();
+            })
+            .catch(err => {
+                alert("Error al guardar: " + err);
+                if (err.includes("Token")) {
+                    localStorage.clear();
+                    window.location.href = "login.html";
+                }
+            });
+    });
+
+    function editar(c) {
+        document.getElementById("ID_CIUDAD").value = c.ID_CIUDAD;
+        document.getElementById("NOMBRE").value = c.NOMBRE;
+        document.getElementById("DEPARTAMENTO").value = c.DEPARTAMENTO;
+        modal.show();
+    }
+
+    function eliminar(id) {
+        if (!confirm("¿Deseas eliminar esta ciudad?")) return;
+
+        fetch(`${API}/Eliminar`, {
+            method: "DELETE",
+            headers: getHeaders(),
+            body: JSON.stringify({ ID_CIUDAD: id })
+        })
+            .then(res => res.ok ? mostrarCiudades() : res.json().then(err => Promise.reject(err.message)))
+            .catch(err => {
+                alert("Error al eliminar: " + err);
+                if (err.includes("Token")) {
+                    localStorage.clear();
+                    window.location.href = "login.html";
+                }
+            });
+    }
+
+    mostrarCiudades();
+    </script>
+</body>
+</html>

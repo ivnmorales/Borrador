@@ -8,56 +8,89 @@ namespace Borrador.Clases
 {
     public class clsDETALLES_ORDEN
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private readonly INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public DETALLES_ORDEN entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<DETALLES_ORDEN>().Add(entidad);
+                if (entidad == null)
+                    return "Datos inválidos para inserción.";
+
+                db.DETALLES_ORDEN.Add(entidad);
                 db.SaveChanges();
-                return "DETALLES_ORDEN insertado correctamente";
+                return "Detalle de orden insertado correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al insertar DETALLES_ORDEN: " + ex.Message;
+                return $"Error al insertar detalle de orden: {ex.Message}";
             }
         }
 
         public string Actualizar()
         {
-            db.Set<DETALLES_ORDEN>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "DETALLES_ORDEN actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_DETALLE <= 0)
+                    return "Datos inválidos para actualización.";
+
+                var existente = db.DETALLES_ORDEN.Find(entidad.ID_DETALLE);
+                if (existente == null)
+                    return "No se encontró el detalle de orden.";
+
+                db.Entry(entidad).State = System.Data.Entity.EntityState.Modified;
+                db.SaveChanges();
+                return "Detalle de orden actualizado correctamente.";
+            }
+            catch (Exception ex)
+            {
+                return $"Error al actualizar detalle de orden: {ex.Message}";
+            }
         }
 
         public DETALLES_ORDEN Consultar(int id)
         {
-            return db.Set<DETALLES_ORDEN>().Find(id);
+            try
+            {
+                return db.DETALLES_ORDEN.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<DETALLES_ORDEN> ConsultarTodos()
         {
-            return db.Set<DETALLES_ORDEN>().ToList();
+            try
+            {
+                return db.DETALLES_ORDEN.OrderBy(d => d.ID_DETALLE).ToList();
+            }
+            catch
+            {
+                return new List<DETALLES_ORDEN>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<DETALLES_ORDEN>().Find(entidad.ID_DETALLE);
-                if (obj != null)
-                {
-                    db.Set<DETALLES_ORDEN>().Remove(obj);
-                    db.SaveChanges();
-                    return "DETALLES_ORDEN eliminado correctamente";
-                }
-                return "No se encontró el DETALLES_ORDEN";
+                if (entidad == null || entidad.ID_DETALLE <= 0)
+                    return "ID inválido para eliminación.";
+
+                var detalle = db.DETALLES_ORDEN.Find(entidad.ID_DETALLE);
+                if (detalle == null)
+                    return "No se encontró el detalle de orden.";
+
+                db.DETALLES_ORDEN.Remove(detalle);
+                db.SaveChanges();
+                return "Detalle de orden eliminado correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar DETALLES_ORDEN: " + ex.Message;
+                return $"Error al eliminar detalle de orden: {ex.Message}";
             }
         }
     }

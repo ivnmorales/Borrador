@@ -1,63 +1,109 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Migrations;
+using System.Data.Entity;
 using Borrador.Models;
 
 namespace Borrador.Clases
 {
     public class clsPROPIEDADES_MODELO
     {
-        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private readonly INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public PROPIEDADES_MODELO entidad { get; set; }
 
         public string Insertar()
         {
             try
             {
-                db.Set<PROPIEDADES_MODELO>().Add(entidad);
+                if (entidad == null || entidad.ID_PROPIEDAD <= 0 || entidad.ID_PROYECTO <= 0)
+                    return "Datos incompletos para insertar.";
+
+                if (db.PROPIEDADES_MODELO.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
+                    return "Ya existe un modelo para esta propiedad.";
+
+                entidad.FECHA_DECORACION = entidad.FECHA_DECORACION == default
+                    ? DateTime.Now
+                    : entidad.FECHA_DECORACION;
+
+                db.PROPIEDADES_MODELO.Add(entidad);
                 db.SaveChanges();
-                return "PROPIEDADES_MODELO insertado correctamente";
+                return "Propiedad modelo insertada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al insertar PROPIEDADES_MODELO: " + ex.Message;
+                return "Error al insertar propiedad modelo: " + ex.Message;
             }
         }
 
         public string Actualizar()
         {
-            db.Set<PROPIEDADES_MODELO>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "PROPIEDADES_MODELO actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_PROPIEDAD <= 0)
+                    return "ID de propiedad no válido para actualizar.";
+
+                var existente = db.PROPIEDADES_MODELO.Find(entidad.ID_PROPIEDAD);
+                if (existente == null)
+                    return "No se encontró la propiedad modelo.";
+
+                existente.ID_PROYECTO = entidad.ID_PROYECTO;
+                existente.COSTO_DECORACION = entidad.COSTO_DECORACION;
+                existente.FECHA_DECORACION = entidad.FECHA_DECORACION;
+
+                db.Entry(existente).State = EntityState.Modified;
+                db.SaveChanges();
+                return "Propiedad modelo actualizada correctamente.";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar propiedad modelo: " + ex.Message;
+            }
         }
 
         public PROPIEDADES_MODELO Consultar(int id)
         {
-            return db.Set<PROPIEDADES_MODELO>().Find(id);
+            try
+            {
+                return db.PROPIEDADES_MODELO.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<PROPIEDADES_MODELO> ConsultarTodos()
         {
-            return db.Set<PROPIEDADES_MODELO>().ToList();
+            try
+            {
+                return db.PROPIEDADES_MODELO
+                         .OrderByDescending(p => p.FECHA_DECORACION)
+                         .ToList();
+            }
+            catch
+            {
+                return new List<PROPIEDADES_MODELO>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<PROPIEDADES_MODELO>().Find(entidad.ID_PROPIEDAD);
-                if (obj != null)
-                {
-                    db.Set<PROPIEDADES_MODELO>().Remove(obj);
-                    db.SaveChanges();
-                    return "PROPIEDADES_MODELO eliminado correctamente";
-                }
-                return "No se encontró el PROPIEDADES_MODELO";
+                if (entidad == null || entidad.ID_PROPIEDAD <= 0)
+                    return "ID de propiedad no válido para eliminación.";
+
+                var modelo = db.PROPIEDADES_MODELO.Find(entidad.ID_PROPIEDAD);
+                if (modelo == null)
+                    return "Propiedad modelo no encontrada.";
+
+                db.PROPIEDADES_MODELO.Remove(modelo);
+                db.SaveChanges();
+                return "Propiedad modelo eliminada correctamente.";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar PROPIEDADES_MODELO: " + ex.Message;
+                return "Error al eliminar propiedad modelo: " + ex.Message;
             }
         }
     }

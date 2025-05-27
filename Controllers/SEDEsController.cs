@@ -1,43 +1,62 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/SEDEs")]
+    [RoutePrefix("api/sedes")]
     public class SEDEsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<SEDE> ConsultarTodos() => new clsSEDE().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsSEDE().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public SEDE Consultar(int id) => new clsSEDE().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var sede = new clsSEDE().Consultar(id);
+            return sede == null ? (IHttpActionResult)NotFound() : Ok(sede);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] SEDE entidad)
+        public IHttpActionResult Insertar([FromBody] SEDE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos.");
+
             var clase = new clsSEDE { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] SEDE entidad)
+        public IHttpActionResult Actualizar([FromBody] SEDE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos.");
+
             var clase = new clsSEDE { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] SEDE entidad)
+        public IHttpActionResult Eliminar([FromBody] SEDE entidad)
         {
+            if (entidad == null || entidad.ID_SEDE <= 0)
+                return BadRequest("ID inválido.");
+
             var clase = new clsSEDE { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
     }
 }

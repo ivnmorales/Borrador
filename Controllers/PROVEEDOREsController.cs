@@ -1,43 +1,62 @@
 using Borrador.Clases;
 using Borrador.Models;
-using System.Collections.Generic;
 using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/PROVEEDOREs")]
+    [RoutePrefix("api/proveedores")]
     public class PROVEEDOREsController : ApiController
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<PROVEEDORE> ConsultarTodos() => new clsPROVEEDORE().ConsultarTodos();
+        public IHttpActionResult ConsultarTodos()
+        {
+            var lista = new clsPROVEEDORE().ConsultarTodos();
+            return Ok(lista);
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public PROVEEDORE Consultar(int id) => new clsPROVEEDORE().Consultar(id);
+        public IHttpActionResult Consultar(int id)
+        {
+            var entidad = new clsPROVEEDORE().Consultar(id);
+            return entidad == null ? (IHttpActionResult)NotFound() : Ok(entidad);
+        }
 
         [HttpPost]
         [Route("Insertar")]
-        public string Insertar([FromBody] PROVEEDORE entidad)
+        public IHttpActionResult Insertar([FromBody] PROVEEDORE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos para insertar.");
+
             var clase = new clsPROVEEDORE { entidad = entidad };
-            return clase.Insertar();
+            var resultado = clase.Insertar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpPut]
         [Route("Actualizar")]
-        public string Actualizar([FromBody] PROVEEDORE entidad)
+        public IHttpActionResult Actualizar([FromBody] PROVEEDORE entidad)
         {
+            if (entidad == null)
+                return BadRequest("Datos inválidos para actualizar.");
+
             var clase = new clsPROVEEDORE { entidad = entidad };
-            return clase.Actualizar();
+            var resultado = clase.Actualizar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
 
         [HttpDelete]
         [Route("Eliminar")]
-        public string Eliminar([FromBody] PROVEEDORE entidad)
+        public IHttpActionResult Eliminar([FromBody] PROVEEDORE entidad)
         {
+            if (entidad == null || entidad.ID_PROVEEDOR <= 0)
+                return BadRequest("ID inválido para eliminar.");
+
             var clase = new clsPROVEEDORE { entidad = entidad };
-            return clase.Eliminar();
+            var resultado = clase.Eliminar();
+            return resultado.StartsWith("Error") ? (IHttpActionResult)BadRequest(resultado) : Ok(resultado);
         }
     }
 }

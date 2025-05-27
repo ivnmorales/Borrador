@@ -6,7 +6,7 @@ using Borrador.Models;
 
 namespace Borrador.Clases
 {
-    public class clsCIUDADE
+    public class clsCIUDAD
     {
         private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public CIUDADE entidad { get; set; }
@@ -15,49 +15,87 @@ namespace Borrador.Clases
         {
             try
             {
-                db.Set<CIUDADE>().Add(entidad);
+                bool duplicado = db.CIUDADES.Any(c =>
+                    c.NOMBRE.Trim().ToUpper() == entidad.NOMBRE.Trim().ToUpper() &&
+                    c.DEPARTAMENTO.Trim().ToUpper() == entidad.DEPARTAMENTO.Trim().ToUpper());
+
+                if (duplicado)
+                    return "Ya existe una ciudad con ese nombre y departamento.";
+
+                db.CIUDADES.Add(entidad);
                 db.SaveChanges();
-                return "CIUDADE insertado correctamente";
+                return "Ciudad insertada correctamente";
             }
             catch (Exception ex)
             {
-                return "Error al insertar CIUDADE: " + ex.Message;
+                return "Error al insertar ciudad: " + ex.Message;
             }
         }
 
         public string Actualizar()
         {
-            db.Set<CIUDADE>().AddOrUpdate(entidad);
-            db.SaveChanges();
-            return "CIUDADE actualizado correctamente";
+            try
+            {
+                if (entidad == null || entidad.ID_CIUDAD <= 0)
+                    return "Datos inválidos para actualizar.";
+
+                bool duplicado = db.CIUDADES.Any(c =>
+                    c.NOMBRE.Trim().ToUpper() == entidad.NOMBRE.Trim().ToUpper() &&
+                    c.DEPARTAMENTO.Trim().ToUpper() == entidad.DEPARTAMENTO.Trim().ToUpper() &&
+                    c.ID_CIUDAD != entidad.ID_CIUDAD);
+
+                if (duplicado)
+                    return "Ya existe otra ciudad con el mismo nombre y departamento.";
+
+                db.CIUDADES.AddOrUpdate(entidad);
+                db.SaveChanges();
+                return "Ciudad actualizada correctamente";
+            }
+            catch (Exception ex)
+            {
+                return "Error al actualizar ciudad: " + ex.Message;
+            }
         }
 
         public CIUDADE Consultar(int id)
         {
-            return db.Set<CIUDADE>().Find(id);
+            try
+            {
+                return db.CIUDADES.Find(id);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public List<CIUDADE> ConsultarTodos()
         {
-            return db.Set<CIUDADE>().ToList();
+            try
+            {
+                return db.CIUDADES.OrderBy(c => c.NOMBRE).ToList();
+            }
+            catch
+            {
+                return new List<CIUDADE>();
+            }
         }
 
         public string Eliminar()
         {
             try
             {
-                var obj = db.Set<CIUDADE>().Find(entidad.ID_CIUDAD);
-                if (obj != null)
-                {
-                    db.Set<CIUDADE>().Remove(obj);
-                    db.SaveChanges();
-                    return "CIUDADE eliminado correctamente";
-                }
-                return "No se encontró el CIUDADE";
+                var obj = db.CIUDADES.Find(entidad.ID_CIUDAD);
+                if (obj == null)
+                    return "Ciudad no encontrada.";
+
+                db.CIUDADES.Remove(obj);
+                db.SaveChanges();
+                return "Ciudad eliminada correctamente";
             }
             catch (Exception ex)
             {
-                return "Error al eliminar CIUDADE: " + ex.Message;
+                return "Error al eliminar ciudad: " + ex.Message;
             }
         }
     }
