@@ -18,6 +18,13 @@ namespace Borrador.Clases
                 if (entidad == null)
                     return "Entidad no válida.";
 
+                if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
+                    return "Propiedad no válida.";
+                if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_CLIENTE))
+                    return "Cliente no válido.";
+                if (!db.EMPLEADOS.Any(e => e.ID_EMPLEADO == entidad.ID_EMPLEADO))
+                    return "Empleado no válido.";
+
                 db.VENTAS.Add(entidad);
                 db.SaveChanges();
                 return "Venta insertada correctamente.";
@@ -39,7 +46,13 @@ namespace Borrador.Clases
                 if (existente == null)
                     return "Venta no encontrada.";
 
-                db.VENTAS.AddOrUpdate(entidad);
+                existente.ID_PROPIEDAD = entidad.ID_PROPIEDAD;
+                existente.ID_CLIENTE = entidad.ID_CLIENTE;
+                existente.ID_EMPLEADO = entidad.ID_EMPLEADO;
+                existente.FECHA_VENTA = entidad.FECHA_VENTA;
+                existente.PRECIO_FINAL = entidad.PRECIO_FINAL;
+                existente.COMISION = entidad.COMISION;
+
                 db.SaveChanges();
                 return "Venta actualizada correctamente.";
             }
@@ -49,11 +62,23 @@ namespace Borrador.Clases
             }
         }
 
-        public VENTA Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.VENTAS.Find(id);
+                return db.VENTAS
+                    .Where(v => v.ID_VENTA == id)
+                    .Select(v => new
+                    {
+                        v.ID_VENTA,
+                        v.FECHA_VENTA,
+                        v.PRECIO_FINAL,
+                        v.COMISION,
+                        PROPIEDAD = new { v.PROPIEDADE.ID_PROPIEDAD, v.PROPIEDADE.TITULO },
+                        CLIENTE = new { v.CLIENTE.ID_CLIENTE, v.CLIENTE.NOMBRES },
+                        EMPLEADO = new { v.EMPLEADO.ID_EMPLEADO, v.EMPLEADO.NOMBRES }
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -61,15 +86,27 @@ namespace Borrador.Clases
             }
         }
 
-        public List<VENTA> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.VENTAS.OrderBy(v => v.ID_VENTA).ToList();
+                return db.VENTAS
+                    .OrderBy(v => v.FECHA_VENTA)
+                    .Select(v => new
+                    {
+                        v.ID_VENTA,
+                        v.FECHA_VENTA,
+                        v.PRECIO_FINAL,
+                        v.COMISION,
+                        PROPIEDAD = new { v.PROPIEDADE.ID_PROPIEDAD, v.PROPIEDADE.TITULO },
+                        CLIENTE = new { v.CLIENTE.ID_CLIENTE, v.CLIENTE.NOMBRES },
+                        EMPLEADO = new { v.EMPLEADO.ID_EMPLEADO, v.EMPLEADO.NOMBRES }
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<VENTA>();
+                return new List<object>();
             }
         }
 

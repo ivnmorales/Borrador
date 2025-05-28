@@ -34,6 +34,7 @@ namespace Borrador.Models
         public System.DateTime FECHA_INGRESO { get; set; }
         public decimal SALARIO { get; set; }
         public int ID_SEDE { get; set; }
+        public Nullable<int> ID_USUARIO { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ARRIENDO> ARRIENDOS { get; set; }
@@ -44,5 +45,6 @@ namespace Borrador.Models
         public virtual ICollection<VENTA> VENTAS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<VISITA> VISITAS { get; set; }
+        public virtual USUARIO USUARIO { get; set; }
     }
 }

@@ -8,7 +8,7 @@ namespace Borrador.Clases
 {
     public class clsCLIENTE
     {
-        private  INMOBILIARIAEntities db = new INMOBILIARIAEntities();
+        private INMOBILIARIAEntities db = new INMOBILIARIAEntities();
         public CLIENTE entidad { get; set; }
 
         public string Insertar()
@@ -22,7 +22,6 @@ namespace Borrador.Clases
                 if (existe)
                     return "Ya existe un cliente con la misma identificación.";
 
-                // Asegurar que FECHA_REGISTRO esté presente
                 if (entidad.FECHA_REGISTRO == default(DateTime))
                     entidad.FECHA_REGISTRO = DateTime.Now;
 
@@ -54,7 +53,6 @@ namespace Borrador.Clases
                 if (duplicado)
                     return "Ya existe otro cliente con la misma identificación.";
 
-                // Actualizar campos
                 existente.IDENTIFICACION = entidad.IDENTIFICACION;
                 existente.NOMBRES = entidad.NOMBRES;
                 existente.APELLIDOS = entidad.APELLIDOS;
@@ -72,11 +70,23 @@ namespace Borrador.Clases
             }
         }
 
-        public CLIENTE Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.CLIENTES.Find(id);
+                return db.CLIENTES
+                         .Where(c => c.ID_CLIENTE == id)
+                         .Select(c => new
+                         {
+                             c.ID_CLIENTE,
+                             c.IDENTIFICACION,
+                             c.NOMBRES,
+                             c.APELLIDOS,
+                             c.TELEFONO,
+                             c.EMAIL,
+                             c.DIRECCION,
+                             c.FECHA_REGISTRO
+                         }).FirstOrDefault();
             }
             catch
             {
@@ -84,15 +94,27 @@ namespace Borrador.Clases
             }
         }
 
-        public List<CLIENTE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.CLIENTES.OrderBy(c => c.NOMBRES).ToList();
+                return db.CLIENTES
+                         .OrderBy(c => c.NOMBRES)
+                         .Select(c => new
+                         {
+                             c.ID_CLIENTE,
+                             c.IDENTIFICACION,
+                             c.NOMBRES,
+                             c.APELLIDOS,
+                             c.TELEFONO,
+                             c.EMAIL,
+                             c.DIRECCION,
+                             c.FECHA_REGISTRO
+                         }).ToList<object>();
             }
             catch
             {
-                return new List<CLIENTE>();
+                return new List<object>();
             }
         }
 

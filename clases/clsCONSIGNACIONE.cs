@@ -1,4 +1,3 @@
-// Clase de lógica de negocio optimizada para CONSIGNACIONE
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -25,7 +24,6 @@ namespace Borrador.Clases
 
                 if (!propiedadExiste)
                     return "La propiedad asociada no existe.";
-
                 if (!propietarioExiste)
                     return "El propietario asociado no existe.";
 
@@ -55,11 +53,17 @@ namespace Borrador.Clases
 
                 if (!propiedadExiste)
                     return "La propiedad asociada no existe.";
-
                 if (!propietarioExiste)
                     return "El propietario asociado no existe.";
 
-                db.Entry(entidad).State = EntityState.Modified;
+                // Actualizar campos
+                existente.ID_PROPIEDAD = entidad.ID_PROPIEDAD;
+                existente.ID_PROPIETARIO = entidad.ID_PROPIETARIO;
+                existente.FECHA_INICIO = entidad.FECHA_INICIO;
+                existente.FECHA_FIN = entidad.FECHA_FIN;
+                existente.PORCENTAJE_COMISION = entidad.PORCENTAJE_COMISION;
+
+                db.Entry(existente).State = EntityState.Modified;
                 db.SaveChanges();
                 return "Consignación actualizada correctamente";
             }
@@ -69,20 +73,66 @@ namespace Borrador.Clases
             }
         }
 
-        public CONSIGNACIONE Consultar(int id)
+        public object Consultar(int id)
         {
-            return db.CONSIGNACIONES.Include(c => c.PROPIEDADE)
-                                     .Include(c => c.PROPIETARIO)
-                                     .FirstOrDefault(c => c.ID_CONSIGNACION == id);
+            try
+            {
+                return db.CONSIGNACIONES
+                         .Where(c => c.ID_CONSIGNACION == id)
+                         .Select(c => new
+                         {
+                             c.ID_CONSIGNACION,
+                             c.FECHA_INICIO,
+                             c.FECHA_FIN,
+                             c.PORCENTAJE_COMISION,
+                             PROPIEDAD = new
+                             {
+                                 c.PROPIEDADE.ID_PROPIEDAD,
+                                 c.PROPIEDADE.TITULO
+                             },
+                             PROPIETARIO = new
+                             {
+                                 c.PROPIETARIO.ID_PROPIETARIO,
+                                 c.PROPIETARIO.NOMBRES
+                             }
+                         })
+                         .FirstOrDefault();
+            }
+            catch
+            {
+                return null;
+            }
         }
 
-        public List<CONSIGNACIONE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
-            return db.CONSIGNACIONES
-                     .Include(c => c.PROPIEDADE)
-                     .Include(c => c.PROPIETARIO)
-                     .OrderBy(c => c.FECHA_INICIO)
-                     .ToList();
+            try
+            {
+                return db.CONSIGNACIONES
+                         .OrderBy(c => c.FECHA_INICIO)
+                         .Select(c => new
+                         {
+                             c.ID_CONSIGNACION,
+                             c.FECHA_INICIO,
+                             c.FECHA_FIN,
+                             c.PORCENTAJE_COMISION,
+                             PROPIEDAD = new
+                             {
+                                 c.PROPIEDADE.ID_PROPIEDAD,
+                                 c.PROPIEDADE.TITULO
+                             },
+                             PROPIETARIO = new
+                             {
+                                 c.PROPIETARIO.ID_PROPIETARIO,
+                                 c.PROPIETARIO.NOMBRES
+                             }
+                         })
+                         .ToList<object>();
+            }
+            catch
+            {
+                return new List<object>();
+            }
         }
 
         public string Eliminar()

@@ -57,11 +57,18 @@ namespace Borrador.Clases
             }
         }
 
-        public CIUDADE Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.CIUDADES.Find(id);
+                return db.CIUDADES
+                         .Where(c => c.ID_CIUDAD == id)
+                         .Select(c => new
+                         {
+                             c.ID_CIUDAD,
+                             c.NOMBRE,
+                             c.DEPARTAMENTO
+                         }).FirstOrDefault();
             }
             catch
             {
@@ -69,15 +76,22 @@ namespace Borrador.Clases
             }
         }
 
-        public List<CIUDADE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.CIUDADES.OrderBy(c => c.NOMBRE).ToList();
+                return db.CIUDADES
+                         .OrderBy(c => c.NOMBRE)
+                         .Select(c => new
+                         {
+                             c.ID_CIUDAD,
+                             c.NOMBRE,
+                             c.DEPARTAMENTO
+                         }).ToList<object>();
             }
             catch
             {
-                return new List<CIUDADE>();
+                return new List<object>();
             }
         }
 

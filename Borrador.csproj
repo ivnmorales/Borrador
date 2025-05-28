@@ -224,6 +224,7 @@
     <Compile Include="clases\clsDETALLES_ORDEN.cs" />
     <Compile Include="clases\clsEMPLEADO.cs" />
     <Compile Include="clases\clsESTADOS_PROPIEDAD.cs" />
+    <Compile Include="clases\clsIMAGENES_PROPIEDAD.cs" />
     <Compile Include="clases\clsORDENES_COMPRA.cs" />
     <Compile Include="clases\clsPROPIEDADE.cs" />
     <Compile Include="clases\clsPROPIEDADES_MODELO.cs" />
@@ -234,6 +235,8 @@
     <Compile Include="clases\clsTIPOS_PROPIEDAD.cs" />
     <Compile Include="clases\clsTIPOS_PROVEEDOR.cs" />
     <Compile Include="clases\clsTIPOS_VISITA.cs" />
+    <Compile Include="clases\clsUpload.cs" />
+    <Compile Include="clases\clsUSUARIO.cs" />
     <Compile Include="clases\clsVENTA.cs" />
     <Compile Include="clases\clsVISITA.cs" />
     <Compile Include="clases\TokenGenerator.cs" />
@@ -257,6 +260,8 @@
     <Compile Include="Controllers\TIPOS_PROPIEDADsController.cs" />
     <Compile Include="Controllers\TIPOS_PROVEEDORsController.cs" />
     <Compile Include="Controllers\TIPOS_VISITAsController.cs" />
+    <Compile Include="Controllers\UploadFilesController.cs" />
+    <Compile Include="Controllers\USUARIOSController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Controllers\VENTAsController.cs" />
     <Compile Include="Controllers\VISITAsController.cs" />
@@ -282,6 +287,9 @@
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\ESTADOS_PROPIEDAD.cs">
+      <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\IMAGENES_PROPIEDAD.cs">
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\INMOBILIARIAEntities.Context.cs">
@@ -321,6 +329,9 @@
     <Compile Include="Models\SEDE.cs">
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\sysdiagram.cs">
+      <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\TIPOS_PROPIEDAD.cs">
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
@@ -328,6 +339,9 @@
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\TIPOS_VISITA.cs">
+      <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\USUARIO.cs">
       <DependentUpon>INMOBILIARIAEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\VENTA.cs">

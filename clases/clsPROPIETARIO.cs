@@ -42,7 +42,6 @@ namespace Borrador.Clases
                 if (existente == null)
                     return "Propietario no encontrado.";
 
-                // Validación para duplicado (excepto a sí mismo)
                 bool duplicado = db.PROPIETARIOS.Any(p =>
                     p.IDENTIFICACION == entidad.IDENTIFICACION &&
                     p.ID_PROPIETARIO != entidad.ID_PROPIETARIO);
@@ -67,11 +66,22 @@ namespace Borrador.Clases
             }
         }
 
-        public PROPIETARIO Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.PROPIETARIOS.Find(id);
+                return db.PROPIETARIOS
+                    .Where(p => p.ID_PROPIETARIO == id)
+                    .Select(p => new
+                    {
+                        p.ID_PROPIETARIO,
+                        p.IDENTIFICACION,
+                        p.NOMBRES,
+                        p.APELLIDOS,
+                        p.TELEFONO,
+                        p.EMAIL,
+                        p.DIRECCION
+                    }).FirstOrDefault();
             }
             catch
             {
@@ -79,15 +89,26 @@ namespace Borrador.Clases
             }
         }
 
-        public List<PROPIETARIO> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.PROPIETARIOS.OrderBy(p => p.NOMBRES).ToList();
+                return db.PROPIETARIOS
+                    .OrderBy(p => p.NOMBRES)
+                    .Select(p => new
+                    {
+                        p.ID_PROPIETARIO,
+                        p.IDENTIFICACION,
+                        p.NOMBRES,
+                        p.APELLIDOS,
+                        p.TELEFONO,
+                        p.EMAIL,
+                        p.DIRECCION
+                    }).ToList<object>();
             }
             catch
             {
-                return new List<PROPIETARIO>();
+                return new List<object>();
             }
         }
 

@@ -50,7 +50,7 @@ namespace Borrador.Clases
                 if (duplicado)
                     return "Ya existe otro empleado con esa identificación.";
 
-                db.Entry(entidad).State = EntityState.Modified;
+                db.Entry(actual).CurrentValues.SetValues(entidad);
                 db.SaveChanges();
                 return "Empleado actualizado correctamente.";
             }
@@ -60,11 +60,26 @@ namespace Borrador.Clases
             }
         }
 
-        public EMPLEADO Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.EMPLEADOS.Find(id);
+                return db.EMPLEADOS
+                    .Where(e => e.ID_EMPLEADO == id)
+                    .Select(e => new
+                    {
+                        e.ID_EMPLEADO,
+                        e.IDENTIFICACION,
+                        e.NOMBRES,
+                        e.APELLIDOS,
+                        e.TELEFONO,
+                        e.EMAIL,
+                        e.DIRECCION,
+                        e.CARGO,
+                        e.FECHA_INGRESO,
+                        e.SALARIO,
+                        e.ID_SEDE
+                    }).FirstOrDefault();
             }
             catch
             {
@@ -72,18 +87,31 @@ namespace Borrador.Clases
             }
         }
 
-        public List<EMPLEADO> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
                 return db.EMPLEADOS
-                         .OrderBy(e => e.NOMBRES)
-                         .ThenBy(e => e.APELLIDOS)
-                         .ToList();
+                    .OrderBy(e => e.NOMBRES)
+                    .ThenBy(e => e.APELLIDOS)
+                    .Select(e => new
+                    {
+                        e.ID_EMPLEADO,
+                        e.IDENTIFICACION,
+                        e.NOMBRES,
+                        e.APELLIDOS,
+                        e.TELEFONO,
+                        e.EMAIL,
+                        e.DIRECCION,
+                        e.CARGO,
+                        e.FECHA_INGRESO,
+                        e.SALARIO,
+                        e.ID_SEDE
+                    }).ToList<object>();
             }
             catch
             {
-                return new List<EMPLEADO>();
+                return new List<object>();
             }
         }
 

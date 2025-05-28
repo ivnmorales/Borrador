@@ -1,10 +1,11 @@
-﻿using Inmobiliaria.Models;
-using Inmobiliaria.Clases;
+﻿using Borrador.Models;
+using Borrador.Clases;
 using System.Linq;
 using System.Web.Http;
-using Borrador.Models;
+using Inmobiliaria.Clases;
+using Inmobiliaria.Models;
 
-namespace Inmobiliaria.Controllers
+namespace Borrador.Controllers
 {
     [RoutePrefix("api/Login")]
     public class LoginController : ApiController
@@ -15,19 +16,19 @@ namespace Inmobiliaria.Controllers
         [Route("Ingresar")]
         public IHttpActionResult Ingresar(Login login)
         {
-            // 🔁 Validar con email como usuario y identificacion como clave
-            var empleado = db.EMPLEADOS
-                .FirstOrDefault(e => e.EMAIL == login.Usuario && e.IDENTIFICACION == login.Clave);
+            // Validar con email y contraseña para USUARIO (tabla nueva con ROL)
+            var usuario = db.USUARIOS
+                .FirstOrDefault(u => u.EMAIL == login.Usuario && u.CONTRASENA == login.Clave);
 
-            if (empleado != null)
+            if (usuario != null)
             {
                 var token = TokenGenerator.GenerateTokenJwt(login.Usuario);
 
                 return Ok(new LoginRespuesta
                 {
-                    Usuario = empleado.NOMBRES + " " + empleado.APELLIDOS,
-                    Perfil = empleado.CARGO,
-                    PaginaInicio = "/Public/dashboard.html",
+                    Usuario = usuario.EMAIL,
+                    Perfil = usuario.ROL,
+                    PaginaInicio = usuario.ROL == "ADMIN" ? "/Admin/dashboard.html" : "/Public/dashboard.html",
                     Autenticado = true,
                     Token = token,
                     Mensaje = "Acceso correcto"
@@ -37,4 +38,7 @@ namespace Inmobiliaria.Controllers
             return Unauthorized();
         }
     }
+
 }
+
+    

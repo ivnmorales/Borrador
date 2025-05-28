@@ -58,11 +58,23 @@ namespace Borrador.Clases
             }
         }
 
-        public ORDENES_COMPRA Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.ORDENES_COMPRA.Find(id);
+                return db.ORDENES_COMPRA
+                    .Where(o => o.ID_ORDEN == id)
+                    .Select(o => new
+                    {
+                        o.ID_ORDEN,
+                        o.ID_PROVEEDOR,
+                        NOMBRE_PROVEEDOR = o.PROVEEDORE.NOMBRE_COMERCIAL,
+                        o.ID_EMPLEADO,
+                        NOMBRE_EMPLEADO = o.EMPLEADO.NOMBRES + " " + o.EMPLEADO.APELLIDOS,
+                        o.FECHA_ORDEN,
+                        o.TOTAL
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -70,17 +82,27 @@ namespace Borrador.Clases
             }
         }
 
-        public List<ORDENES_COMPRA> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
                 return db.ORDENES_COMPRA
-                         .OrderByDescending(o => o.FECHA_ORDEN)
-                         .ToList();
+                    .OrderByDescending(o => o.FECHA_ORDEN)
+                    .Select(o => new
+                    {
+                        o.ID_ORDEN,
+                        o.ID_PROVEEDOR,
+                        NOMBRE_PROVEEDOR = o.PROVEEDORE.NOMBRE_COMERCIAL,
+                        o.ID_EMPLEADO,
+                        NOMBRE_EMPLEADO = o.EMPLEADO.NOMBRES + " " + o.EMPLEADO.APELLIDOS,
+                        o.FECHA_ORDEN,
+                        o.TOTAL
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<ORDENES_COMPRA>();
+                return new List<object>();
             }
         }
 

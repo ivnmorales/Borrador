@@ -10,11 +10,17 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<ESTADOS_PROPIEDAD> ConsultarTodos() => new clsESTADOS_PROPIEDAD().ConsultarTodos();
+        public List<object> ConsultarTodos()
+        {
+            return new clsESTADOS_PROPIEDAD().ConsultarTodos();
+        }
 
         [HttpGet]
         [Route("Consultar")]
-        public ESTADOS_PROPIEDAD Consultar(int id) => new clsESTADOS_PROPIEDAD().Consultar(id);
+        public object Consultar(int id)
+        {
+            return new clsESTADOS_PROPIEDAD().Consultar(id);
+        }
 
         [HttpPost]
         [Route("Insertar")]

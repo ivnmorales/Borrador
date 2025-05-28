@@ -10,17 +10,18 @@ namespace Borrador.Controllers
     {
         [HttpGet]
         [Route("ConsultarTodos")]
-        public List<VISITA> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             return new clsVISITA().ConsultarTodos();
         }
 
         [HttpGet]
         [Route("Consultar")]
-        public VISITA Consultar(int id)
+        public object Consultar(int id)
         {
             return new clsVISITA().Consultar(id);
         }
+
 
         [HttpPost]
         [Route("Insertar")]

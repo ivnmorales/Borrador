@@ -15,6 +15,9 @@ namespace Borrador.Clases
         {
             try
             {
+                if (entidad == null || string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
+                    return "Datos inválidos para insertar.";
+
                 if (db.TIPOS_PROPIEDAD.Any(t => t.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper()))
                     return "Ya existe un tipo de propiedad con esa descripción.";
 
@@ -42,7 +45,11 @@ namespace Borrador.Clases
                 if (duplicado)
                     return "Ya existe otro tipo de propiedad con la misma descripción.";
 
-                db.TIPOS_PROPIEDAD.AddOrUpdate(entidad);
+                var actual = db.TIPOS_PROPIEDAD.Find(entidad.ID_TIPO_PROPIEDAD);
+                if (actual == null)
+                    return "Tipo de propiedad no encontrado.";
+
+                actual.DESCRIPCION = entidad.DESCRIPCION;
                 db.SaveChanges();
                 return "Tipo de propiedad actualizado correctamente.";
             }
@@ -52,11 +59,18 @@ namespace Borrador.Clases
             }
         }
 
-        public TIPOS_PROPIEDAD Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.TIPOS_PROPIEDAD.Find(id);
+                return db.TIPOS_PROPIEDAD
+                    .Where(t => t.ID_TIPO_PROPIEDAD == id)
+                    .Select(t => new
+                    {
+                        t.ID_TIPO_PROPIEDAD,
+                        t.DESCRIPCION
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -64,15 +78,22 @@ namespace Borrador.Clases
             }
         }
 
-        public List<TIPOS_PROPIEDAD> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.TIPOS_PROPIEDAD.OrderBy(t => t.DESCRIPCION).ToList();
+                return db.TIPOS_PROPIEDAD
+                    .OrderBy(t => t.DESCRIPCION)
+                    .Select(t => new
+                    {
+                        t.ID_TIPO_PROPIEDAD,
+                        t.DESCRIPCION
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<TIPOS_PROPIEDAD>();
+                return new List<object>();
             }
         }
 

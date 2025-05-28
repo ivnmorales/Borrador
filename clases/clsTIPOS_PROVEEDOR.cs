@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Migrations;
 using Borrador.Models;
 
 namespace Borrador.Clases
@@ -15,10 +14,12 @@ namespace Borrador.Clases
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
+                if (entidad == null || string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
                     return "La descripción no puede estar vacía.";
 
-                bool existe = db.TIPOS_PROVEEDOR.Any(tp => tp.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper());
+                bool existe = db.TIPOS_PROVEEDOR.Any(tp =>
+                    tp.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper());
+
                 if (existe)
                     return "Ya existe un tipo de proveedor con esta descripción.";
 
@@ -39,8 +40,9 @@ namespace Borrador.Clases
                 if (entidad == null || entidad.ID_TIPO_PROVEEDOR <= 0)
                     return "ID inválido para actualizar.";
 
-                if (string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
-                    return "La descripción no puede estar vacía.";
+                var actual = db.TIPOS_PROVEEDOR.Find(entidad.ID_TIPO_PROVEEDOR);
+                if (actual == null)
+                    return "Tipo de proveedor no encontrado.";
 
                 bool duplicado = db.TIPOS_PROVEEDOR.Any(tp =>
                     tp.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper() &&
@@ -49,7 +51,7 @@ namespace Borrador.Clases
                 if (duplicado)
                     return "Ya existe otro tipo de proveedor con la misma descripción.";
 
-                db.TIPOS_PROVEEDOR.AddOrUpdate(entidad);
+                actual.DESCRIPCION = entidad.DESCRIPCION;
                 db.SaveChanges();
                 return "Tipo de proveedor actualizado correctamente.";
             }
@@ -59,11 +61,18 @@ namespace Borrador.Clases
             }
         }
 
-        public TIPOS_PROVEEDOR Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.TIPOS_PROVEEDOR.Find(id);
+                return db.TIPOS_PROVEEDOR
+                    .Where(tp => tp.ID_TIPO_PROVEEDOR == id)
+                    .Select(tp => new
+                    {
+                        tp.ID_TIPO_PROVEEDOR,
+                        tp.DESCRIPCION
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -71,15 +80,22 @@ namespace Borrador.Clases
             }
         }
 
-        public List<TIPOS_PROVEEDOR> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.TIPOS_PROVEEDOR.OrderBy(tp => tp.DESCRIPCION).ToList();
+                return db.TIPOS_PROVEEDOR
+                    .OrderBy(tp => tp.DESCRIPCION)
+                    .Select(tp => new
+                    {
+                        tp.ID_TIPO_PROVEEDOR,
+                        tp.DESCRIPCION
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<TIPOS_PROVEEDOR>();
+                return new List<object>();
             }
         }
 
@@ -87,6 +103,9 @@ namespace Borrador.Clases
         {
             try
             {
+                if (entidad == null || entidad.ID_TIPO_PROVEEDOR <= 0)
+                    return "ID inválido para eliminar.";
+
                 var obj = db.TIPOS_PROVEEDOR.Find(entidad.ID_TIPO_PROVEEDOR);
                 if (obj == null)
                     return "Tipo de proveedor no encontrado.";

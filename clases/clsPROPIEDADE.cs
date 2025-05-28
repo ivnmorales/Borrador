@@ -43,7 +43,6 @@ namespace Borrador.Clases
                 if (existente == null)
                     return "Propiedad no encontrada.";
 
-                // Actualizar campos uno a uno
                 existente.TITULO = entidad.TITULO;
                 existente.DESCRIPCION = entidad.DESCRIPCION;
                 existente.ID_TIPO_PROPIEDAD = entidad.ID_TIPO_PROPIEDAD;
@@ -68,11 +67,31 @@ namespace Borrador.Clases
             }
         }
 
-        public PROPIEDADE Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.PROPIEDADES.Find(id);
+                return db.PROPIEDADES
+                    .Where(p => p.ID_PROPIEDAD == id)
+                    .Select(p => new
+                    {
+                        p.ID_PROPIEDAD,
+                        p.TITULO,
+                        p.DESCRIPCION,
+                        p.AREA_M2,
+                        p.HABITACIONES,
+                        p.BANOS,
+                        p.PARQUEADEROS,
+                        p.ANIO_CONSTRUCCION,
+                        p.DIRECCION,
+                        p.PRECIO_VENTA,
+                        p.PRECIO_ARRIENDO,
+                        p.FECHA_REGISTRO,
+                        CIUDAD = new { p.CIUDADE.ID_CIUDAD, p.CIUDADE.NOMBRE },
+                        ESTADO = new { p.ESTADOS_PROPIEDAD.ID_ESTADO_PROPIEDAD, p.ESTADOS_PROPIEDAD.DESCRIPCION },
+                        TIPO = new { p.TIPOS_PROPIEDAD.ID_TIPO_PROPIEDAD, p.TIPOS_PROPIEDAD.DESCRIPCION }
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -80,17 +99,31 @@ namespace Borrador.Clases
             }
         }
 
-        public List<PROPIEDADE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
                 return db.PROPIEDADES
-                         .OrderByDescending(p => p.FECHA_REGISTRO)
-                         .ToList();
+                    .OrderByDescending(p => p.FECHA_REGISTRO)
+                    .Select(p => new
+                    {
+                        p.ID_PROPIEDAD,
+                        p.TITULO,
+                        p.AREA_M2,
+                        p.HABITACIONES,
+                        p.BANOS,
+                        p.PARQUEADEROS,
+                        p.PRECIO_VENTA,
+                        p.PRECIO_ARRIENDO,
+                        CIUDAD = p.CIUDADE.NOMBRE,
+                        ESTADO = p.ESTADOS_PROPIEDAD.DESCRIPCION,
+                        TIPO = p.TIPOS_PROPIEDAD.DESCRIPCION
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<PROPIEDADE>();
+                return new List<object>();
             }
         }
 

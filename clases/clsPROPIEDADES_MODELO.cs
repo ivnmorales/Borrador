@@ -25,7 +25,14 @@ namespace Borrador.Clases
                     ? DateTime.Now
                     : entidad.FECHA_DECORACION;
 
-                db.PROPIEDADES_MODELO.Add(entidad);
+                db.PROPIEDADES_MODELO.Add(new PROPIEDADES_MODELO
+                {
+                    ID_PROPIEDAD = entidad.ID_PROPIEDAD,
+                    ID_PROYECTO = entidad.ID_PROYECTO,
+                    COSTO_DECORACION = entidad.COSTO_DECORACION,
+                    FECHA_DECORACION = entidad.FECHA_DECORACION
+                });
+
                 db.SaveChanges();
                 return "Propiedad modelo insertada correctamente.";
             }
@@ -60,11 +67,20 @@ namespace Borrador.Clases
             }
         }
 
-        public PROPIEDADES_MODELO Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.PROPIEDADES_MODELO.Find(id);
+                return db.PROPIEDADES_MODELO
+                    .Where(p => p.ID_PROPIEDAD == id)
+                    .Select(p => new
+                    {
+                        p.ID_PROPIEDAD,
+                        p.ID_PROYECTO,
+                        p.COSTO_DECORACION,
+                        p.FECHA_DECORACION
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -72,17 +88,24 @@ namespace Borrador.Clases
             }
         }
 
-        public List<PROPIEDADES_MODELO> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
                 return db.PROPIEDADES_MODELO
                          .OrderByDescending(p => p.FECHA_DECORACION)
-                         .ToList();
+                         .Select(p => new
+                         {
+                             p.ID_PROPIEDAD,
+                             p.ID_PROYECTO,
+                             p.COSTO_DECORACION,
+                             p.FECHA_DECORACION
+                         })
+                         .ToList<object>();
             }
             catch
             {
-                return new List<PROPIEDADES_MODELO>();
+                return new List<object>();
             }
         }
 

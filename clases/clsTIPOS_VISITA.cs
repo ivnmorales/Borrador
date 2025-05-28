@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Migrations;
 using Borrador.Models;
 
 namespace Borrador.Clases
@@ -15,7 +14,7 @@ namespace Borrador.Clases
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
+                if (entidad == null || string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
                     return "La descripción no puede estar vacía.";
 
                 bool existe = db.TIPOS_VISITA.Any(t => t.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper());
@@ -39,9 +38,6 @@ namespace Borrador.Clases
                 if (entidad == null || entidad.ID_TIPO_VISITA <= 0)
                     return "Datos inválidos para actualizar.";
 
-                if (string.IsNullOrWhiteSpace(entidad.DESCRIPCION))
-                    return "La descripción no puede estar vacía.";
-
                 bool duplicado = db.TIPOS_VISITA.Any(t =>
                     t.DESCRIPCION.Trim().ToUpper() == entidad.DESCRIPCION.Trim().ToUpper() &&
                     t.ID_TIPO_VISITA != entidad.ID_TIPO_VISITA);
@@ -49,7 +45,11 @@ namespace Borrador.Clases
                 if (duplicado)
                     return "Ya existe otro tipo de visita con la misma descripción.";
 
-                db.TIPOS_VISITA.AddOrUpdate(entidad);
+                var existente = db.TIPOS_VISITA.Find(entidad.ID_TIPO_VISITA);
+                if (existente == null)
+                    return "Tipo de visita no encontrado.";
+
+                existente.DESCRIPCION = entidad.DESCRIPCION;
                 db.SaveChanges();
                 return "Tipo de visita actualizado correctamente.";
             }
@@ -59,11 +59,18 @@ namespace Borrador.Clases
             }
         }
 
-        public TIPOS_VISITA Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.TIPOS_VISITA.Find(id);
+                return db.TIPOS_VISITA
+                    .Where(t => t.ID_TIPO_VISITA == id)
+                    .Select(t => new
+                    {
+                        t.ID_TIPO_VISITA,
+                        t.DESCRIPCION
+                    })
+                    .FirstOrDefault();
             }
             catch
             {
@@ -71,15 +78,22 @@ namespace Borrador.Clases
             }
         }
 
-        public List<TIPOS_VISITA> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.TIPOS_VISITA.OrderBy(t => t.DESCRIPCION).ToList();
+                return db.TIPOS_VISITA
+                    .OrderBy(t => t.DESCRIPCION)
+                    .Select(t => new
+                    {
+                        t.ID_TIPO_VISITA,
+                        t.DESCRIPCION
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<TIPOS_VISITA>();
+                return new List<object>();
             }
         }
 
@@ -87,6 +101,9 @@ namespace Borrador.Clases
         {
             try
             {
+                if (entidad == null || entidad.ID_TIPO_VISITA <= 0)
+                    return "ID inválido para eliminar.";
+
                 var obj = db.TIPOS_VISITA.Find(entidad.ID_TIPO_VISITA);
                 if (obj == null)
                     return "Tipo de visita no encontrado.";

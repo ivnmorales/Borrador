@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity.Migrations;
+using System.Data.Entity;
 using Borrador.Models;
 
 namespace Borrador.Clases
@@ -17,6 +17,10 @@ namespace Borrador.Clases
             {
                 if (entidad == null)
                     return "Datos inválidos para inserción.";
+
+                // Validar que la orden exista
+                if (!db.ORDENES_COMPRA.Any(o => o.ID_ORDEN == entidad.ID_ORDEN))
+                    return "La orden de compra asociada no existe.";
 
                 db.DETALLES_ORDEN.Add(entidad);
                 db.SaveChanges();
@@ -39,7 +43,17 @@ namespace Borrador.Clases
                 if (existente == null)
                     return "No se encontró el detalle de orden.";
 
-                db.Entry(entidad).State = System.Data.Entity.EntityState.Modified;
+                // Validación si se cambia la orden
+                if (!db.ORDENES_COMPRA.Any(o => o.ID_ORDEN == entidad.ID_ORDEN))
+                    return "La orden de compra asociada no existe.";
+
+                // Actualizar campos
+                existente.ID_ORDEN = entidad.ID_ORDEN;
+                existente.DESCRIPCION = entidad.DESCRIPCION;
+                existente.CANTIDAD = entidad.CANTIDAD;
+                existente.PRECIO_UNITARIO = entidad.PRECIO_UNITARIO;
+
+                db.Entry(existente).State = EntityState.Modified;
                 db.SaveChanges();
                 return "Detalle de orden actualizado correctamente.";
             }
@@ -49,11 +63,26 @@ namespace Borrador.Clases
             }
         }
 
-        public DETALLES_ORDEN Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.DETALLES_ORDEN.Find(id);
+                return db.DETALLES_ORDEN
+                         .Where(d => d.ID_DETALLE == id)
+                         .Select(d => new
+                         {
+                             d.ID_DETALLE,
+                             d.DESCRIPCION,
+                             d.CANTIDAD,
+                             d.PRECIO_UNITARIO,
+                             d.ID_ORDEN,
+                             ORDEN = new
+                             {
+                                 d.ORDENES_COMPRA.ID_ORDEN,
+                                 d.ORDENES_COMPRA.FECHA_ORDEN
+                             }
+                         })
+                         .FirstOrDefault();
             }
             catch
             {
@@ -61,15 +90,30 @@ namespace Borrador.Clases
             }
         }
 
-        public List<DETALLES_ORDEN> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.DETALLES_ORDEN.OrderBy(d => d.ID_DETALLE).ToList();
+                return db.DETALLES_ORDEN
+                         .OrderBy(d => d.ID_DETALLE)
+                         .Select(d => new
+                         {
+                             d.ID_DETALLE,
+                             d.DESCRIPCION,
+                             d.CANTIDAD,
+                             d.PRECIO_UNITARIO,
+                             d.ID_ORDEN,
+                             ORDEN = new
+                             {
+                                 d.ORDENES_COMPRA.ID_ORDEN,
+                                 d.ORDENES_COMPRA.FECHA_ORDEN
+                             }
+                         })
+                         .ToList<object>();
             }
             catch
             {
-                return new List<DETALLES_ORDEN>();
+                return new List<object>();
             }
         }
 

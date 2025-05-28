@@ -44,5 +44,8 @@ namespace Borrador.Models
         public virtual DbSet<TIPOS_VISITA> TIPOS_VISITA { get; set; }
         public virtual DbSet<VENTA> VENTAS { get; set; }
         public virtual DbSet<VISITA> VISITAS { get; set; }
+        public virtual DbSet<IMAGENES_PROPIEDAD> IMAGENES_PROPIEDAD { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
+        public virtual DbSet<USUARIO> USUARIOS { get; set; }
     }
 }

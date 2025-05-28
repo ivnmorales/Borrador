@@ -61,11 +61,21 @@ namespace Borrador.Clases
             }
         }
 
-        public PROVEEDORE Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.PROVEEDORES.Find(id);
+                return db.PROVEEDORES
+                    .Where(p => p.ID_PROVEEDOR == id)
+                    .Select(p => new
+                    {
+                        p.ID_PROVEEDOR,
+                        p.NOMBRE_COMERCIAL,
+                        p.NIT,
+                        p.TELEFONO,
+                        p.EMAIL,
+                        p.ID_TIPO_PROVEEDOR
+                    }).FirstOrDefault();
             }
             catch
             {
@@ -73,15 +83,25 @@ namespace Borrador.Clases
             }
         }
 
-        public List<PROVEEDORE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.PROVEEDORES.OrderBy(p => p.NOMBRE_COMERCIAL).ToList();
+                return db.PROVEEDORES
+                    .OrderBy(p => p.NOMBRE_COMERCIAL)
+                    .Select(p => new
+                    {
+                        p.ID_PROVEEDOR,
+                        p.NOMBRE_COMERCIAL,
+                        p.NIT,
+                        p.TELEFONO,
+                        p.EMAIL,
+                        p.ID_TIPO_PROVEEDOR
+                    }).ToList<object>();
             }
             catch
             {
-                return new List<PROVEEDORE>();
+                return new List<object>();
             }
         }
 

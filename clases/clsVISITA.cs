@@ -39,7 +39,7 @@ namespace Borrador.Clases
                 if (existente == null)
                     return "VISITA no encontrada para actualizar.";
 
-                db.VISITAS.AddOrUpdate(entidad);
+                db.Entry(existente).CurrentValues.SetValues(entidad);
                 db.SaveChanges();
                 return "VISITA actualizada correctamente.";
             }
@@ -49,11 +49,23 @@ namespace Borrador.Clases
             }
         }
 
-        public VISITA Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.VISITAS.Find(id);
+                var v = db.VISITAS.Find(id);
+                if (v == null) return null;
+
+                return new
+                {
+                    v.ID_VISITA,
+                    v.ID_PROPIEDAD,
+                    v.ID_CLIENTE,
+                    v.ID_EMPLEADO,
+                    v.ID_TIPO_VISITA,
+                    v.FECHA_HORA,
+                    v.COMENTARIOS
+                };
             }
             catch
             {
@@ -61,15 +73,26 @@ namespace Borrador.Clases
             }
         }
 
-        public List<VISITA> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.VISITAS.OrderBy(v => v.ID_VISITA).ToList();
+                return db.VISITAS
+                    .OrderBy(v => v.ID_VISITA)
+                    .Select(v => new
+                    {
+                        v.ID_VISITA,
+                        v.ID_PROPIEDAD,
+                        v.ID_CLIENTE,
+                        v.ID_EMPLEADO,
+                        v.ID_TIPO_VISITA,
+                        v.FECHA_HORA,
+                        v.COMENTARIOS
+                    }).ToList<object>();
             }
             catch
             {
-                return new List<VISITA>();
+                return new List<object>();
             }
         }
 

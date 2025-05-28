@@ -19,7 +19,6 @@ namespace Borrador.Clases
                     if (entidad == null)
                         return "Datos de arriendo no válidos.";
 
-                    // Validación de existencia por claves foráneas
                     if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
                         return "La propiedad especificada no existe.";
                     if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_INQUILINO))
@@ -51,7 +50,6 @@ namespace Borrador.Clases
                     if (existente == null)
                         return "No se encontró el arriendo.";
 
-                    // Validaciones de claves foráneas
                     if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
                         return "La propiedad especificada no existe.";
                     if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_INQUILINO))
@@ -70,13 +68,25 @@ namespace Borrador.Clases
             }
         }
 
-        public ARRIENDO Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
                 using (var db = new INMOBILIARIAEntities())
                 {
-                    return db.ARRIENDOS.Find(id);
+                    return db.ARRIENDOS
+                        .Where(a => a.ID_ARRIENDO == id)
+                        .Select(a => new
+                        {
+                            a.ID_ARRIENDO,
+                            a.FECHA_INICIO,
+                            a.FECHA_FIN,
+                            a.CANON_MENSUAL,
+                            a.DEPOSITO,
+                            PROPIEDAD = new { a.PROPIEDADE.ID_PROPIEDAD, a.PROPIEDADE.TITULO },
+                            CLIENTE = new { a.CLIENTE.ID_CLIENTE, a.CLIENTE.NOMBRES },
+                            EMPLEADO = new { a.EMPLEADO.ID_EMPLEADO, a.EMPLEADO.NOMBRES }
+                        }).FirstOrDefault();
                 }
             }
             catch
@@ -85,23 +95,30 @@ namespace Borrador.Clases
             }
         }
 
-        public List<ARRIENDO> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
                 using (var db = new INMOBILIARIAEntities())
                 {
                     return db.ARRIENDOS
-                             .Include(a => a.PROPIEDADE)
-                             .Include(a => a.CLIENTE)
-                             .Include(a => a.EMPLEADO)
-                             .OrderBy(a => a.FECHA_INICIO)
-                             .ToList();
+                        .OrderBy(a => a.FECHA_INICIO)
+                        .Select(a => new
+                        {
+                            a.ID_ARRIENDO,
+                            a.FECHA_INICIO,
+                            a.FECHA_FIN,
+                            a.CANON_MENSUAL,
+                            a.DEPOSITO,
+                            PROPIEDAD = new { a.PROPIEDADE.ID_PROPIEDAD, a.PROPIEDADE.TITULO },
+                            CLIENTE = new { a.CLIENTE.ID_CLIENTE, a.CLIENTE.NOMBRES },
+                            EMPLEADO = new { a.EMPLEADO.ID_EMPLEADO, a.EMPLEADO.NOMBRES }
+                        }).ToList<object>();
                 }
             }
             catch
             {
-                return new List<ARRIENDO>();
+                return new List<object>();
             }
         }
 

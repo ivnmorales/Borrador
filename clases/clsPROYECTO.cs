@@ -16,7 +16,7 @@ namespace Borrador.Clases
             try
             {
                 if (entidad == null || string.IsNullOrWhiteSpace(entidad.NOMBRE))
-                    return "Datos inválidos para insertar.";
+                    return "Datos inv\u00e1lidos para insertar.";
 
                 if (db.PROYECTOS.Any(p => p.NOMBRE.Trim().ToUpper() == entidad.NOMBRE.Trim().ToUpper()))
                     return "Ya existe un proyecto con ese nombre.";
@@ -36,7 +36,7 @@ namespace Borrador.Clases
             try
             {
                 if (entidad == null || entidad.ID_PROYECTO <= 0)
-                    return "Datos inválidos para actualizar.";
+                    return "Datos inv\u00e1lidos para actualizar.";
 
                 var existente = db.PROYECTOS.Find(entidad.ID_PROYECTO);
                 if (existente == null)
@@ -63,11 +63,27 @@ namespace Borrador.Clases
             }
         }
 
-        public PROYECTO Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.PROYECTOS.Find(id);
+                return db.PROYECTOS
+                    .Where(p => p.ID_PROYECTO == id)
+                    .Select(p => new
+                    {
+                        p.ID_PROYECTO,
+                        p.NOMBRE,
+                        p.DIRECCION,
+                        p.FECHA_LANZAMIENTO,
+                        p.FECHA_ENTREGA_ESTIMADA,
+                        p.DESARROLLADOR,
+                        CIUDAD = new
+                        {
+                            p.CIUDADE.ID_CIUDAD,
+                            p.CIUDADE.NOMBRE,
+                            p.CIUDADE.DEPARTAMENTO
+                        }
+                    }).FirstOrDefault();
             }
             catch
             {
@@ -75,15 +91,31 @@ namespace Borrador.Clases
             }
         }
 
-        public List<PROYECTO> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.PROYECTOS.OrderBy(p => p.NOMBRE).ToList();
+                return db.PROYECTOS
+                    .OrderBy(p => p.NOMBRE)
+                    .Select(p => new
+                    {
+                        p.ID_PROYECTO,
+                        p.NOMBRE,
+                        p.DIRECCION,
+                        p.FECHA_LANZAMIENTO,
+                        p.FECHA_ENTREGA_ESTIMADA,
+                        p.DESARROLLADOR,
+                        CIUDAD = new
+                        {
+                            p.CIUDADE.ID_CIUDAD,
+                            p.CIUDADE.NOMBRE,
+                            p.CIUDADE.DEPARTAMENTO
+                        }
+                    }).ToList<object>();
             }
             catch
             {
-                return new List<PROYECTO>();
+                return new List<object>();
             }
         }
 
@@ -92,7 +124,7 @@ namespace Borrador.Clases
             try
             {
                 if (entidad == null || entidad.ID_PROYECTO <= 0)
-                    return "ID inválido para eliminación.";
+                    return "ID inv\u00e1lido para eliminaci\u00f3n.";
 
                 var obj = db.PROYECTOS.Find(entidad.ID_PROYECTO);
                 if (obj == null)

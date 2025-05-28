@@ -21,6 +21,7 @@ namespace Borrador.Models
             this.CONSIGNACIONES = new HashSet<CONSIGNACIONE>();
             this.VENTAS = new HashSet<VENTA>();
             this.VISITAS = new HashSet<VISITA>();
+            this.IMAGENES_PROPIEDAD = new HashSet<IMAGENES_PROPIEDAD>();
         }
     
         public int ID_PROPIEDAD { get; set; }
@@ -51,5 +52,7 @@ namespace Borrador.Models
         public virtual ICollection<VENTA> VENTAS { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<VISITA> VISITAS { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<IMAGENES_PROPIEDAD> IMAGENES_PROPIEDAD { get; set; }
     }
 }

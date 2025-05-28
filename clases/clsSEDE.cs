@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using Borrador.Models;
 
@@ -48,9 +47,8 @@ namespace Borrador.Clases
 
                 existente.NOMBRE = entidad.NOMBRE;
                 existente.DIRECCION = entidad.DIRECCION;
-                existente.CIUDADE = entidad.CIUDADE;
+                existente.ID_CIUDAD = entidad.ID_CIUDAD;
 
-                db.Entry(existente).State = EntityState.Modified;
                 db.SaveChanges();
                 return "Sede actualizada correctamente.";
             }
@@ -60,11 +58,23 @@ namespace Borrador.Clases
             }
         }
 
-        public SEDE Consultar(int id)
+        public object Consultar(int id)
         {
             try
             {
-                return db.SEDES.Find(id);
+                var sede = db.SEDES
+                    .Where(s => s.ID_SEDE == id)
+                    .Select(s => new
+                    {
+                        s.ID_SEDE,
+                        s.NOMBRE,
+                        s.DIRECCION,
+                        s.TELEFONO,
+                        s.ID_CIUDAD
+                    })
+                    .FirstOrDefault();
+
+                return sede;
             }
             catch
             {
@@ -72,15 +82,25 @@ namespace Borrador.Clases
             }
         }
 
-        public List<SEDE> ConsultarTodos()
+        public List<object> ConsultarTodos()
         {
             try
             {
-                return db.SEDES.OrderBy(s => s.NOMBRE).ToList();
+                return db.SEDES
+                    .OrderBy(s => s.NOMBRE)
+                    .Select(s => new
+                    {
+                        s.ID_SEDE,
+                        s.NOMBRE,
+                        s.DIRECCION,
+                        s.TELEFONO,
+                        s.ID_CIUDAD
+                    })
+                    .ToList<object>();
             }
             catch
             {
-                return new List<SEDE>();
+                return new List<object>();
             }
         }
 

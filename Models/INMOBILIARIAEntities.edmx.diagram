@@ -48,6 +48,11 @@
         <AssociationConnector Association="INMOBILIARIAModel.FK__PROPIEDAD__ID_PR__6477ECF3" ManuallyRouted="false" />
         <AssociationConnector Association="INMOBILIARIAModel.FK__PROVEEDOR__ID_TI__5441852A" ManuallyRouted="false" />
         <AssociationConnector Association="INMOBILIARIAModel.FK__VISITAS__ID_TIPO__73BA3083" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="INMOBILIARIAModel.IMAGENES_PROPIEDAD" Width="1.5" PointX="5.625" PointY="17.875" />
+        <EntityTypeShape EntityType="INMOBILIARIAModel.sysdiagram" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="INMOBILIARIAModel.USUARIO" Width="1.5" PointX="0.75" PointY="0.875" />
+        <AssociationConnector Association="INMOBILIARIAModel.FK__EMPLEADOS__ID_US__1332DBDC" />
+        <AssociationConnector Association="INMOBILIARIAModel.FK__IMAGENES___ID_PR__123EB7A3" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
