@@ -41,5 +41,18 @@ namespace Borrador.Controllers
             };
             return await upload.GrabarArchivo(true);
         }
+
+        [HttpDelete]
+        [Route("Eliminar")]
+        public HttpResponseMessage EliminarArchivo(string NombreImagen)
+        {
+            var resultado = new clsUpload().EliminarArchivo(NombreImagen);
+
+            if (resultado == "OK")
+                return Request.CreateResponse(HttpStatusCode.OK, "Imagen eliminada correctamente.");
+            else
+                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, resultado);
+        }
+
     }
 }

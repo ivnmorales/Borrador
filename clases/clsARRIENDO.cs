@@ -106,6 +106,9 @@ namespace Borrador.Clases
                         .Select(a => new
                         {
                             a.ID_ARRIENDO,
+                            a.ID_PROPIEDAD,
+                            a.ID_INQUILINO,
+                            a.ID_EMPLEADO,
                             a.FECHA_INICIO,
                             a.FECHA_FIN,
                             a.CANON_MENSUAL,
@@ -121,6 +124,7 @@ namespace Borrador.Clases
                 return new List<object>();
             }
         }
+
 
         public string Eliminar()
         {

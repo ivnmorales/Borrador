@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using Borrador.Clases;
+using Borrador.Models;
+using System.Linq;
+
 
 namespace Borrador.Clases
 {
@@ -109,6 +112,37 @@ namespace Borrador.Clases
                 return request.CreateErrorResponse(HttpStatusCode.InternalServerError, "Error al consultar el archivo: " + ex.Message);
             }
         }
+
+        public string EliminarArchivo(string nombreImagen)
+        {
+            try
+            {
+                using (var db = new INMOBILIARIAEntities())
+                {
+                    var imagen = db.IMAGENES_PROPIEDAD.FirstOrDefault(i => i.NOMBRE == nombreImagen);
+                    if (imagen == null)
+                        return "No se encontró la imagen en la base de datos.";
+
+                    // Eliminar el archivo físico
+                    string rutaBase = System.Web.Hosting.HostingEnvironment.MapPath("~/Uploads/");
+                    string rutaCompleta = System.IO.Path.Combine(rutaBase, nombreImagen);
+
+                    if (System.IO.File.Exists(rutaCompleta))
+                        System.IO.File.Delete(rutaCompleta);
+
+                    // Eliminar de la base de datos
+                    db.IMAGENES_PROPIEDAD.Remove(imagen);
+                    db.SaveChanges();
+
+                    return "OK";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error al eliminar imagen: " + ex.Message;
+            }
+        }
+
 
         private string ProcesarArchivos(List<string> Archivos)
         {
