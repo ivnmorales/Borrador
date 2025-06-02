@@ -77,7 +77,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.CONSIGNACIONES
+                var resultado = db.CONSIGNACIONES
                          .Where(c => c.ID_CONSIGNACION == id)
                          .Select(c => new
                          {
@@ -97,10 +97,13 @@ namespace Borrador.Clases
                              }
                          })
                          .FirstOrDefault();
+                if (resultado == null)
+                    return "Consignación no encontrada, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar consignación: " + ex.Message;
             }
         }
 

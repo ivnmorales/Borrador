@@ -77,7 +77,7 @@ namespace Borrador.Clases
                     .FirstOrDefault();
 
                 if (orden == null)
-                    return "Orden de compra no encontrada.";
+                    return "Orden de compra no encontrada, verifique el ID.";
 
                 return orden;
             }

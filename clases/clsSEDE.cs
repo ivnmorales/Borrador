@@ -74,11 +74,14 @@ namespace Borrador.Clases
                     })
                     .FirstOrDefault();
 
+                if (sede == null)
+                    return "Sede no encontrada, verifique el ID.";
+
                 return sede;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar sede: " + ex.Message;
             }
         }
 

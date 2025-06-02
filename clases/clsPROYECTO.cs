@@ -16,7 +16,7 @@ namespace Borrador.Clases
             try
             {
                 if (entidad == null || string.IsNullOrWhiteSpace(entidad.NOMBRE))
-                    return "Datos inv\u00e1lidos para insertar.";
+                    return "Datos inválidos para insertar.";
 
                 if (db.PROYECTOS.Any(p => p.NOMBRE.Trim().ToUpper() == entidad.NOMBRE.Trim().ToUpper()))
                     return "Ya existe un proyecto con ese nombre.";
@@ -36,7 +36,7 @@ namespace Borrador.Clases
             try
             {
                 if (entidad == null || entidad.ID_PROYECTO <= 0)
-                    return "Datos inv\u00e1lidos para actualizar.";
+                    return "Datos inválidos para actualizar.";
 
                 var existente = db.PROYECTOS.Find(entidad.ID_PROYECTO);
                 if (existente == null)
@@ -67,7 +67,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.PROYECTOS
+                var resultado =  db.PROYECTOS
                     .Where(p => p.ID_PROYECTO == id)
                     .Select(p => new
                     {
@@ -84,10 +84,13 @@ namespace Borrador.Clases
                             p.CIUDADE.DEPARTAMENTO
                         }
                     }).FirstOrDefault();
+                if (resultado == null)
+                    return "Proyecto no encontrado, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                return "Error al consultar proyecto: " + ex.Message;
             }
         }
 

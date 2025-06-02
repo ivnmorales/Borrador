@@ -71,7 +71,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.PROPIEDADES
+                var resultado = db.PROPIEDADES
                     .Where(p => p.ID_PROPIEDAD == id)
                     .Select(p => new
                     {
@@ -92,10 +92,13 @@ namespace Borrador.Clases
                         TIPO = new { p.TIPOS_PROPIEDAD.ID_TIPO_PROPIEDAD, p.TIPOS_PROPIEDAD.DESCRIPCION }
                     })
                     .FirstOrDefault();
+                if (resultado == null)
+                    return "Propiedad no encontrada, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar propiedad: " + ex.Message;
             }
         }
 

@@ -63,7 +63,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.TIPOS_VISITA
+                var resultado = db.TIPOS_VISITA
                     .Where(t => t.ID_TIPO_VISITA == id)
                     .Select(t => new
                     {
@@ -71,10 +71,13 @@ namespace Borrador.Clases
                         t.DESCRIPCION
                     })
                     .FirstOrDefault();
+                if (resultado == null)
+                    return "Tipo de visita no encontrado, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar tipo de visita: " + ex.Message;
             }
         }
 

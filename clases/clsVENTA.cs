@@ -66,7 +66,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.VENTAS
+                var resultado = db.VENTAS
                     .Where(v => v.ID_VENTA == id)
                     .Select(v => new
                     {
@@ -79,10 +79,13 @@ namespace Borrador.Clases
                         EMPLEADO = new { v.EMPLEADO.ID_EMPLEADO, v.EMPLEADO.NOMBRES }
                     })
                     .FirstOrDefault();
+                if (resultado == null)
+                    return "Venta no encontrada, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar venta: " + ex.Message;
             }
         }
 

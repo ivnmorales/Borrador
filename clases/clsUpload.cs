@@ -48,6 +48,7 @@ namespace Borrador.Clases
                         {
                             File.Delete(filePath);
                             File.Move(file.LocalFileName, filePath);
+                            Archivos.Add(fileName);
                         }
                         else
                         {
@@ -124,7 +125,7 @@ namespace Borrador.Clases
                         return "No se encontró la imagen en la base de datos.";
 
                     // Eliminar el archivo físico
-                    string rutaBase = System.Web.Hosting.HostingEnvironment.MapPath("~/Uploads/");
+                    string rutaBase = System.Web.Hosting.HostingEnvironment.MapPath("~/Archivos");
                     string rutaCompleta = System.IO.Path.Combine(rutaBase, nombreImagen);
 
                     if (System.IO.File.Exists(rutaCompleta))
