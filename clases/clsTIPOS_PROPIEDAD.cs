@@ -77,9 +77,9 @@ namespace Borrador.Clases
 
                 return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar tipo de propiedad: " + ex.Message;
             }
         }
 
