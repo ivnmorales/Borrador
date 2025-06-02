@@ -1,0 +1,299 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Gestión Total de Propiedades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        h2, h4 {
+            color: #b68c00;
+            font-weight: bold;
+        }
+
+        .form-section {
+            background: #fefefe;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            border: 1px solid #e3e3e3;
+        }
+
+        .btn {
+            border-radius: 0.5rem;
+            font-weight: 600;
+        }
+
+        .btn-gold {
+            background-color: #b68c00;
+            color: white;
+        }
+
+            .btn-gold:hover {
+                background-color: #a67c00;
+            }
+
+        .card {
+            border: 1px solid #f0e6d2;
+            border-radius: 1rem;
+        }
+
+        .card-img-top {
+            object-fit: cover;
+            height: 200px;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        .preview-img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin: 5px;
+            border: 2px solid #b68c00;
+        }
+
+        .img-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .btn-delete-img {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 18px;
+        }
+
+        .btn-volver {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <a href="/Public/dashboard.html" class="btn btn-outline-secondary btn-volver">⟵ Volver al Dashboard</a>
+    <div class="container py-4">
+        <h2 class="text-center mb-4">Gestión Total de Propiedades</h2>
+
+        <!-- Formulario -->
+        <div class="form-section">
+            <h4>Formulario de Propiedad</h4>
+            <input type="hidden" id="ID_PROPIEDAD">
+            <div class="row g-3">
+                <div class="col-md-4"><input class="form-control" id="TITULO" placeholder="Título"></div>
+                <div class="col-md-4"><input class="form-control" id="DESCRIPCION" placeholder="Descripción"></div>
+                <div class="col-md-4"><input class="form-control" id="AREA_M2" placeholder="Área m2" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="HABITACIONES" placeholder="Habitaciones" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="BANOS" placeholder="Baños" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="PARQUEADEROS" placeholder="Parqueaderos" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="ANIO_CONSTRUCCION" placeholder="Año Construcción" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="DIRECCION" placeholder="Dirección"></div>
+                <div class="col-md-4"><input class="form-control" id="PRECIO_VENTA" placeholder="Precio Venta" type="number"></div>
+                <div class="col-md-4"><input class="form-control" id="PRECIO_ARRIENDO" placeholder="Precio Arriendo" type="number"></div>
+                <div class="col-md-4"><select id="ID_TIPO_PROPIEDAD" class="form-control"></select></div>
+                <div class="col-md-4"><select id="ID_ESTADO_PROPIEDAD" class="form-control"></select></div>
+                <div class="col-md-4"><select id="ID_CIUDAD" class="form-control"></select></div>
+            </div>
+
+            <div class="mt-3">
+                <input type="file" id="inputImagen" multiple class="form-control">
+                <div id="previewImagenes" class="mt-3"></div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button class="btn btn-success me-2" onclick="insertarPropiedad()">Insertar</button>
+                <button class="btn btn-primary me-2" onclick="actualizarPropiedad()">Actualizar</button>
+                <button class="btn btn-danger" onclick="eliminarPropiedad()">Eliminar</button>
+            </div>
+        </div>
+
+        <!-- Galería -->
+        <div class="row" id="galeriaPropiedades"></div>
+    </div>
+
+    <script>
+        const apiBase = "https://localhost:44375";
+        const headers = { "Authorization": `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" };
+
+        async function cargarPropiedades() {
+            const res = await fetch(`${apiBase}/api/propiedades/ConsultarTodos`, { headers });
+            const lista = await res.json();
+            const galeria = document.getElementById("galeriaPropiedades");
+            galeria.innerHTML = "";
+
+            for (const p of lista) {
+                let imagenUrl = "https://via.placeholder.com/300x200?text=Sin+Imagen";
+                try {
+                    const imgRes = await fetch(`${apiBase}/api/UploadFiles/ConsultarImagenes?IdPropiedad=${p.ID_PROPIEDAD}`, { headers });
+                    const imagenes = await imgRes.json();
+                    if (imagenes.length > 0) {
+                        const nombreImagen = imagenes[0];
+                        const blobRes = await fetch(`${apiBase}/api/UploadFiles/Consultar?NombreImagen=${encodeURIComponent(nombreImagen)}`, { method: "GET", headers: { "Authorization": headers.Authorization } });
+                        if (blobRes.ok) {
+                            const blob = await blobRes.blob();
+                            imagenUrl = URL.createObjectURL(blob);
+                        }
+                    }
+                } catch { }
+
+                galeria.innerHTML += `
+                        <div class="col-md-4 mb-4">
+                          <div class="card shadow">
+                            <img src="${imagenUrl}" class="card-img-top" alt="Imagen propiedad">
+                            <div class="card-body">
+                              <h5 class="card-title">${p.TITULO}</h5>
+                              <p class="card-text">${p.TIPO} - ${p.ESTADO}</p>
+                              <p><strong>${p.CIUDAD}</strong></p>
+                              <p>Área: ${p.AREA_M2} m² | Habitaciones: ${p.HABITACIONES} | Baños: ${p.BANOS}</p>
+                              <p><strong>Venta:</strong> $${p.PRECIO_VENTA?.toLocaleString()}<br><strong>Arriendo:</strong> $${p.PRECIO_ARRIENDO?.toLocaleString()}</p>
+                              <button class="btn btn-sm btn-outline-secondary mt-2" onclick="editarPropiedad(${p.ID_PROPIEDAD})">Editar</button>
+                            </div>
+                          </div>
+                        </div>`;
+            }
+        }
+
+        async function editarPropiedad(id) {
+            const res = await fetch(`${apiBase}/api/propiedades/Consultar?id=${id}`, { headers });
+            const p = await res.json();
+            document.getElementById("ID_PROPIEDAD").value = p.ID_PROPIEDAD;
+            document.getElementById("TITULO").value = p.TITULO;
+            document.getElementById("DESCRIPCION").value = p.DESCRIPCION;
+            document.getElementById("AREA_M2").value = p.AREA_M2;
+            document.getElementById("HABITACIONES").value = p.HABITACIONES;
+            document.getElementById("BANOS").value = p.BANOS;
+            document.getElementById("PARQUEADEROS").value = p.PARQUEADEROS;
+            document.getElementById("ANIO_CONSTRUCCION").value = p.ANIO_CONSTRUCCION;
+            document.getElementById("DIRECCION").value = p.DIRECCION;
+            document.getElementById("PRECIO_VENTA").value = p.PRECIO_VENTA;
+            document.getElementById("PRECIO_ARRIENDO").value = p.PRECIO_ARRIENDO;
+            document.getElementById("ID_CIUDAD").value = p.CIUDAD.ID_CIUDAD;
+            document.getElementById("ID_TIPO_PROPIEDAD").value = p.TIPO.ID_TIPO_PROPIEDAD;
+            document.getElementById("ID_ESTADO_PROPIEDAD").value = p.ESTADO.ID_ESTADO_PROPIEDAD;
+            cargarImagenes(p.ID_PROPIEDAD);
+        }
+
+        async function cargarImagenes(id) {
+            const preview = document.getElementById("previewImagenes");
+            preview.innerHTML = "";
+            const res = await fetch(`${apiBase}/api/UploadFiles/ConsultarImagenes?IdPropiedad=${id}`, { headers });
+            const imagenes = await res.json();
+            for (const nombre of imagenes) {
+                const r = await fetch(`${apiBase}/api/UploadFiles/Consultar?NombreImagen=${encodeURIComponent(nombre)}`, { headers: { Authorization: headers.Authorization } });
+                if (r.ok) {
+                    const blob = await r.blob();
+                    const url = URL.createObjectURL(blob);
+                    preview.innerHTML += `
+                          <div class="img-container">
+                            <img src="${url}" class="preview-img">
+                            <button class="btn-delete-img" onclick="eliminarImagen('${nombre}')">&times;</button>
+                          </div>`;
+                }
+            }
+        }
+
+        async function eliminarImagen(nombre) {
+            if (!confirm("¿Seguro que deseas eliminar esta imagen?")) return;
+            const res = await fetch(`${apiBase}/api/UploadFiles/Eliminar?NombreImagen=${encodeURIComponent(nombre)}`, {
+                method: "DELETE", headers
+            });
+            if (res.ok) cargarImagenes(document.getElementById("ID_PROPIEDAD").value);
+        }
+
+        async function insertarPropiedad() {
+            const propiedad = recolectarDatos();
+            const res = await fetch(`${apiBase}/api/propiedades/Insertar`, { method: "POST", headers, body: JSON.stringify(propiedad) });
+            if (res.ok) {
+                const id = await res.text();
+                await subirImagenes(id);
+                cargarPropiedades();
+            } else alert(await res.text());
+        }
+
+        async function actualizarPropiedad() {
+            const propiedad = recolectarDatos();
+            const res = await fetch(`${apiBase}/api/propiedades/Actualizar`, { method: "PUT", headers, body: JSON.stringify(propiedad) });
+            if (res.ok) {
+                await subirImagenes(propiedad.ID_PROPIEDAD);
+                cargarPropiedades();
+            } else alert(await res.text());
+        }
+
+        async function subirImagenes(idPropiedad) {
+            const input = document.getElementById("inputImagen");
+            if (input.files.length === 0) return;
+            const form = new FormData();
+            for (const file of input.files) form.append("file", file);
+            const res = await fetch(`${apiBase}/api/UploadFiles/Subir?Datos=${idPropiedad}&Proceso=IMAGEN`, {
+                method: "POST", headers: { Authorization: headers.Authorization }, body: form
+            });
+            if (res.ok) cargarImagenes(idPropiedad);
+        }
+
+        async function eliminarPropiedad() {
+            const id = document.getElementById("ID_PROPIEDAD").value;
+            if (!id) return alert("Seleccione una propiedad.");
+            const res = await fetch(`${apiBase}/api/propiedades/Eliminar`, { method: "DELETE", headers, body: JSON.stringify({ ID_PROPIEDAD: parseInt(id) }) });
+            if (res.ok) cargarPropiedades();
+            else alert(await res.text());
+        }
+
+        function recolectarDatos() {
+            return {
+                ID_PROPIEDAD: parseInt(document.getElementById("ID_PROPIEDAD").value) || 0,
+                TITULO: document.getElementById("TITULO").value,
+                DESCRIPCION: document.getElementById("DESCRIPCION").value,
+                AREA_M2: parseFloat(document.getElementById("AREA_M2").value),
+                HABITACIONES: parseInt(document.getElementById("HABITACIONES").value),
+                BANOS: parseInt(document.getElementById("BANOS").value),
+                PARQUEADEROS: parseInt(document.getElementById("PARQUEADEROS").value),
+                ANIO_CONSTRUCCION: parseInt(document.getElementById("ANIO_CONSTRUCCION").value),
+                DIRECCION: document.getElementById("DIRECCION").value,
+                PRECIO_VENTA: parseFloat(document.getElementById("PRECIO_VENTA").value),
+                PRECIO_ARRIENDO: parseFloat(document.getElementById("PRECIO_ARRIENDO").value),
+                ID_TIPO_PROPIEDAD: parseInt(document.getElementById("ID_TIPO_PROPIEDAD").value),
+                ID_ESTADO_PROPIEDAD: parseInt(document.getElementById("ID_ESTADO_PROPIEDAD").value),
+                ID_CIUDAD: parseInt(document.getElementById("ID_CIUDAD").value)
+            };
+        }
+
+        async function cargarCombos() {
+            const combos = [
+                { id: "ID_TIPO_PROPIEDAD", ruta: "tipos_propiedad" },
+                { id: "ID_ESTADO_PROPIEDAD", ruta: "estados_propiedad" },
+                { id: "ID_CIUDAD", ruta: "ciudades" }
+            ];
+
+            for (const combo of combos) {
+                const res = await fetch(`${apiBase}/api/${combo.ruta}/ConsultarTodos`, { headers });
+                const lista = await res.json();
+                const select = document.getElementById(combo.id);
+                select.innerHTML = "<option value=''>Seleccione...</option>";
+                lista.forEach(o => {
+                    select.innerHTML += `<option value="${o.ID_TIPO_PROPIEDAD || o.ID_ESTADO_PROPIEDAD || o.ID_CIUDAD}">${o.DESCRIPCION || o.NOMBRE}</option>`;
+                });
+            }
+        }
+
+        cargarCombos();
+        cargarPropiedades();
+    </script>
+</body>
+</html>

@@ -1,4 +1,6 @@
 ﻿using Borrador.Clases;
+using Borrador.Models;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -53,6 +55,20 @@ namespace Borrador.Controllers
             else
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, resultado);
         }
+        [HttpGet]
+        [Route("ConsultarImagenes")]
+        public IHttpActionResult ConsultarImagenes(int IdPropiedad)
+        {
+            using (var db = new INMOBILIARIAEntities())
+            {
+                var imagenes = db.IMAGENES_PROPIEDAD
+                                 .Where(i => i.ID_PROPIEDAD == IdPropiedad)
+                                 .Select(i => i.NOMBRE)
+                                 .ToList();
+                return Ok(imagenes);
+            }
+        }
+
 
     }
 }

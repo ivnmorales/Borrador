@@ -6,63 +6,163 @@
     <title>Gestión de Clientes y Arriendos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
+        body {
+            background-color: #ffffff;
+            color: #212529;
+        }
+
+        h2, h4 {
+            color: #d4af37; /* dorado elegante */
+        }
+
+        .form-section, .arriendos-section, .search-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 8px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
         .table-wrapper {
             overflow-x: auto;
         }
 
-        .form-control, .btn {
-            border-radius: 0.5rem;
-        }
-
         .btn {
+            border-radius: 0.5rem;
             font-weight: 600;
         }
 
-        .form-section {
-            background: #fff;
-            padding: 1rem;
-            border-radius: 1rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.05);
-            margin-bottom: 2rem;
+        .btn-warning {
+            background-color: #ffd700;
+            color: black;
+            border: none;
+        }
+
+        .btn-info {
+            background-color: #17c1e8;
+            color: white;
+        }
+
+        .btn-outline-dark {
+            color: #d4af37;
+            border-color: #d4af37;
+        }
+
+            .btn-outline-dark:hover {
+                background-color: #d4af37;
+                color: black;
+            }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+
+        .table thead th {
+            background-color: #212529;
+            color: #ffd700;
+        }
+
+        input.form-control:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 5px #d4af37;
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
     <div class="container py-4">
-        <h2 class="mb-4">Gestión de Clientes</h2>
+        <h2 class="mb-4 text-center">Gestión de Clientes y Arriendos</h2>
+        <div class="text-end mb-3">
+            <a href="/Public/dashboard.html" class="btn btn-outline-dark">← Regresar al Dashboard</a>
+        </div>
 
-        <!-- Formulario -->
-        <div class="form-section row g-3">
+        <!-- Sección de búsqueda -->
+        <div class="search-section row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="filtroDocumento" class="form-label">Buscar por Identificación</label>
+                <input type="text" class="form-control" id="filtroDocumento" placeholder="Ingrese documento">
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-warning" onclick="filtrarPorDocumento()">Buscar</button>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-outline-dark" onclick="mostrarTodos()">Ver todos</button>
+            </div>
+        </div>
+
+
+
+        <!-- Sección de Cliente -->
+        <div class="form-section">
+            <h4>Formulario Cliente</h4>
             <input type="hidden" id="ID_CLIENTE">
-            <div class="col-md-4"><input class="form-control" id="IDENTIFICACION" placeholder="Identificación"></div>
-            <div class="col-md-4"><input class="form-control" id="NOMBRES" placeholder="Nombres"></div>
-            <div class="col-md-4"><input class="form-control" id="APELLIDOS" placeholder="Apellidos"></div>
-            <div class="col-md-4"><input class="form-control" id="TELEFONO" placeholder="Teléfono"></div>
-            <div class="col-md-4"><input class="form-control" id="EMAIL" placeholder="Correo"></div>
-            <div class="col-md-4"><input class="form-control" id="DIRECCION" placeholder="Dirección"></div>
-            <div class="col-12 text-center">
+            <div class="row g-3">
+                <div class="col-md-4"><input class="form-control" id="IDENTIFICACION" placeholder="Identificación"></div>
+                <div class="col-md-4"><input class="form-control" id="NOMBRES" placeholder="Nombres"></div>
+                <div class="col-md-4"><input class="form-control" id="APELLIDOS" placeholder="Apellidos"></div>
+                <div class="col-md-4"><input class="form-control" id="TELEFONO" placeholder="Teléfono"></div>
+                <div class="col-md-4"><input class="form-control" id="EMAIL" placeholder="Correo"></div>
+                <div class="col-md-4"><input class="form-control" id="DIRECCION" placeholder="Dirección"></div>
+            </div>
+            <div class="text-center mt-3">
                 <button class="btn btn-success me-2" onclick="guardarCliente()">Insertar</button>
                 <button class="btn btn-primary me-2" onclick="actualizarCliente()">Actualizar</button>
                 <button class="btn btn-danger" onclick="eliminarCliente()">Eliminar</button>
             </div>
         </div>
 
-        <!-- Tabla de clientes -->
-        <div class="table-wrapper">
+        <!-- Tabla Clientes -->
+        <div class="table-wrapper mb-5">
             <table class="table table-bordered table-hover" id="clientesTable">
                 <thead class="table-dark text-center">
                     <tr>
                         <th>ID</th>
                         <th>Identificación</th>
-                        <th>Nombre Completo</th>
+                        <th>Nombre</th>
                         <th>Teléfono</th>
                         <th>Email</th>
                         <th>Dirección</th>
-                        <th>Editar</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="clientesBody"></tbody>
             </table>
+        </div>
+
+        <!-- Sección de Arriendos -->
+        <div class="arriendos-section">
+            <h4>Arriendos del Cliente</h4>
+            <div class="row g-3">
+                <input type="hidden" id="ID_ARRIENDO">
+                <div class="col-md-4"><input class="form-control" id="ID_PROPIEDAD" placeholder="ID Propiedad"></div>
+                <div class="col-md-4"><input class="form-control" id="ID_EMPLEADO" placeholder="ID Empleado"></div>
+                <div class="col-md-4"><input class="form-control" id="CANON_MENSUAL" placeholder="Canon Mensual"></div>
+                <div class="col-md-4"><input class="form-control" id="DEPOSITO" placeholder="Depósito"></div>
+                <div class="col-md-4"><input type="date" class="form-control" id="FECHA_INICIO"></div>
+                <div class="col-md-4"><input type="date" class="form-control" id="FECHA_FIN"></div>
+            </div>
+            <div class="text-center mt-3">
+                <button class="btn btn-success me-2" onclick="guardarArriendo()">Insertar</button>
+                <button class="btn btn-primary me-2" onclick="actualizarArriendo()">Actualizar</button>
+                <button class="btn btn-danger" onclick="eliminarArriendo()">Eliminar</button>
+            </div>
+
+            <div class="table-wrapper mt-4">
+                <table class="table table-bordered table-hover" id="arriendosTable">
+                    <thead class="table-secondary text-center">
+                        <tr>
+                            <th>ID</th>
+                            <th>Propiedad</th>
+                            <th>Inicio</th>
+                            <th>Fin</th>
+                            <th>Canon</th>
+                            <th>Depósito</th>
+                            <th>Empleado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="arriendosBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -73,41 +173,49 @@
             "Content-Type": "application/json"
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
-            cargarClientes();
-        });
-
-        function limpiarFormulario() {
-            ID_CLIENTE.value = "";
-            IDENTIFICACION.value = "";
-            NOMBRES.value = "";
-            APELLIDOS.value = "";
-            TELEFONO.value = "";
-            EMAIL.value = "";
-            DIRECCION.value = "";
-        }
+        let clienteSeleccionado = null;
+        let listaClientes = [];
 
         async function cargarClientes() {
             const res = await fetch(`${apiBase}/api/CLIENTEs/ConsultarTodos`, { headers });
-            const clientes = await res.json();
+            listaClientes = await res.json();
+            mostrarClientes(listaClientes);
+        }
+
+        function mostrarClientes(clientes) {
             const tbody = document.getElementById("clientesBody");
             tbody.innerHTML = "";
-
             clientes.forEach(c => {
                 tbody.innerHTML += `
-                        <tr>
-                            <td>${c.ID_CLIENTE}</td>
-                            <td>${c.IDENTIFICACION}</td>
-                            <td>${c.NOMBRES} ${c.APELLIDOS}</td>
-                            <td>${c.TELEFONO ?? '-'}</td>
-                            <td>${c.EMAIL ?? '-'}</td>
-                            <td>${c.DIRECCION ?? '-'}</td>
-                            <td><button class="btn btn-sm btn-warning" onclick='cargarEdicion(${JSON.stringify(c)})'>Editar</button></td>
-                        </tr>`;
+                            <tr>
+                                <td>${c.ID_CLIENTE}</td>
+                                <td>${c.IDENTIFICACION}</td>
+                                <td>${c.NOMBRES} ${c.APELLIDOS}</td>
+                                <td>${c.TELEFONO}</td>
+                                <td>${c.EMAIL}</td>
+                                <td>${c.DIRECCION}</td>
+                                <td>
+                                    <button class='btn btn-sm btn-warning' onclick='editarCliente(${JSON.stringify(c)})'>Editar</button>
+                                    <button class='btn btn-sm btn-info' onclick='verArriendos(${c.ID_CLIENTE})'>Ver Arriendos</button>
+                                </td>
+                            </tr>`;
             });
         }
 
-        function cargarEdicion(c) {
+        function filtrarPorDocumento() {
+            const filtro = document.getElementById("filtroDocumento").value.trim().toLowerCase();
+            if (!filtro) return alert("Ingrese una identificación para filtrar.");
+            const filtrados = listaClientes.filter(c => c.IDENTIFICACION.toLowerCase().includes(filtro));
+            if (filtrados.length === 0) alert("No se encontraron coincidencias.");
+            mostrarClientes(filtrados);
+        }
+
+        function mostrarTodos() {
+            document.getElementById("filtroDocumento").value = "";
+            mostrarClientes(listaClientes);
+        }
+
+        function editarCliente(c) {
             ID_CLIENTE.value = c.ID_CLIENTE;
             IDENTIFICACION.value = c.IDENTIFICACION;
             NOMBRES.value = c.NOMBRES;
@@ -115,57 +223,33 @@
             TELEFONO.value = c.TELEFONO;
             EMAIL.value = c.EMAIL;
             DIRECCION.value = c.DIRECCION;
+            clienteSeleccionado = c.ID_CLIENTE;
         }
 
         async function guardarCliente() {
-            const cliente = recolectarDatos();
-            const res = await fetch(`${apiBase}/api/CLIENTEs/Insertar`, {
-                method: "POST",
-                headers, body: JSON.stringify(cliente)
-            });
-            if (res.ok) {
-                alert("Cliente insertado");
-                limpiarFormulario();
-                cargarClientes();
-            } else {
-                alert(await res.text());
-            }
+            const cliente = obtenerDatosCliente();
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Insertar`, { method: "POST", headers, body: JSON.stringify(cliente) });
+            if (res.ok) cargarClientes();
+            else alert(await res.text());
         }
 
         async function actualizarCliente() {
-            const cliente = recolectarDatos();
-            if (!cliente.ID_CLIENTE) return alert("Seleccione un cliente para actualizar.");
-            const res = await fetch(`${apiBase}/api/CLIENTEs/Actualizar`, {
-                method: "PUT",
-                headers, body: JSON.stringify(cliente)
-            });
-            if (res.ok) {
-                alert("Cliente actualizado");
-                limpiarFormulario();
-                cargarClientes();
-            } else {
-                alert(await res.text());
-            }
+            const cliente = obtenerDatosCliente();
+            if (!cliente.ID_CLIENTE) return alert("Seleccione un cliente.");
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Actualizar`, { method: "PUT", headers, body: JSON.stringify(cliente) });
+            if (res.ok) cargarClientes();
+            else alert(await res.text());
         }
 
         async function eliminarCliente() {
             const id = ID_CLIENTE.value;
-            if (!id) return alert("Seleccione un cliente para eliminar.");
-            if (!confirm("¿Está seguro que desea eliminar este cliente?")) return;
-            const res = await fetch(`${apiBase}/api/CLIENTEs/Eliminar`, {
-                method: "DELETE",
-                headers, body: JSON.stringify({ ID_CLIENTE: id })
-            });
-            if (res.ok) {
-                alert("Cliente eliminado");
-                limpiarFormulario();
-                cargarClientes();
-            } else {
-                alert(await res.text());
-            }
+            if (!id) return alert("Seleccione un cliente.");
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Eliminar`, { method: "DELETE", headers, body: JSON.stringify({ ID_CLIENTE: id }) });
+            if (res.ok) cargarClientes();
+            else alert(await res.text());
         }
 
-        function recolectarDatos() {
+        function obtenerDatosCliente() {
             return {
                 ID_CLIENTE: parseInt(ID_CLIENTE.value) || 0,
                 IDENTIFICACION: IDENTIFICACION.value,
@@ -176,6 +260,75 @@
                 DIRECCION: DIRECCION.value
             };
         }
+
+        async function verArriendos(idCliente) {
+            clienteSeleccionado = idCliente;
+            const res = await fetch(`${apiBase}/api/arriendos/ConsultarTodos`, { headers });
+            const data = await res.json();
+            const lista = data.filter(a => a.ID_INQUILINO === idCliente);
+            const tbody = document.getElementById("arriendosBody");
+            tbody.innerHTML = "";
+            lista.forEach(a => {
+                tbody.innerHTML += `
+                            <tr>
+                                <td>${a.ID_ARRIENDO}</td>
+                                <td>${a.PROPIEDAD?.TITULO || a.ID_PROPIEDAD}</td>
+                                <td>${a.FECHA_INICIO?.split('T')[0]}</td>
+                                <td>${a.FECHA_FIN?.split('T')[0]}</td>
+                                <td>${a.CANON_MENSUAL}</td>
+                                <td>${a.DEPOSITO}</td>
+                                <td>${a.EMPLEADO?.NOMBRES || a.ID_EMPLEADO}</td>
+                                <td><button class='btn btn-sm btn-warning' onclick='editarArriendo(${JSON.stringify(a)})'>Editar</button></td>
+                            </tr>`;
+            });
+        }
+
+        function editarArriendo(a) {
+            ID_ARRIENDO.value = a.ID_ARRIENDO;
+            ID_PROPIEDAD.value = a.ID_PROPIEDAD;
+            ID_EMPLEADO.value = a.ID_EMPLEADO;
+            FECHA_INICIO.value = a.FECHA_INICIO.split('T')[0];
+            FECHA_FIN.value = a.FECHA_FIN.split('T')[0];
+            CANON_MENSUAL.value = a.CANON_MENSUAL;
+            DEPOSITO.value = a.DEPOSITO;
+        }
+
+        async function guardarArriendo() {
+            const arriendo = obtenerDatosArriendo();
+            const res = await fetch(`${apiBase}/api/arriendos/Insertar`, { method: "POST", headers, body: JSON.stringify(arriendo) });
+            if (res.ok) verArriendos(clienteSeleccionado);
+            else alert(await res.text());
+        }
+
+        async function actualizarArriendo() {
+            const arriendo = obtenerDatosArriendo();
+            const res = await fetch(`${apiBase}/api/arriendos/Actualizar`, { method: "PUT", headers, body: JSON.stringify(arriendo) });
+            if (res.ok) verArriendos(clienteSeleccionado);
+            else alert(await res.text());
+        }
+
+        async function eliminarArriendo() {
+            const id = ID_ARRIENDO.value;
+            if (!id) return alert("Seleccione un arriendo.");
+            const res = await fetch(`${apiBase}/api/arriendos/Eliminar`, { method: "DELETE", headers, body: JSON.stringify({ ID_ARRIENDO: id }) });
+            if (res.ok) verArriendos(clienteSeleccionado);
+            else alert(await res.text());
+        }
+
+        function obtenerDatosArriendo() {
+            return {
+                ID_ARRIENDO: parseInt(ID_ARRIENDO.value) || 0,
+                ID_PROPIEDAD: parseInt(ID_PROPIEDAD.value),
+                ID_INQUILINO: clienteSeleccionado,
+                ID_EMPLEADO: parseInt(ID_EMPLEADO.value),
+                FECHA_INICIO: FECHA_INICIO.value,
+                FECHA_FIN: FECHA_FIN.value,
+                CANON_MENSUAL: parseFloat(CANON_MENSUAL.value),
+                DEPOSITO: parseFloat(DEPOSITO.value)
+            };
+        }
+
+        cargarClientes();
     </script>
 </body>
 </html>
