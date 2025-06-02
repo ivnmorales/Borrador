@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Visitas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 1rem 2rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="header d-flex justify-content-between align-items-center">
+            <h4>Gestión de Visitas</h4>
+            <button class="btn btn-primary" onclick="mostrarFormulario()">Agregar Visita</button>
+        </div>
+        <div class="content">
+            <div id="mensaje" class="alert d-none"></div>
+            <table class="table table-striped table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Propiedad</th>
+                        <th>Cliente</th>
+                        <th>Empleado</th>
+                        <th>Tipo de Visita</th>
+                        <th>Fecha y Hora</th>
+                        <th>Comentarios</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-visitas"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalVisita" tabindex="-1" aria-labelledby="modalVisitaLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formVisita">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalVisitaLabel">Visita</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="ID_VISITA">
+                        <div class="mb-3">
+                            <label class="form-label">Propiedad</label>
+                            <select id="ID_PROPIEDAD" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cliente</label>
+                            <select id="ID_CLIENTE" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Empleado</label>
+                            <select id="ID_EMPLEADO" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Visita</label>
+                            <select id="ID_TIPO_VISITA" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Fecha y Hora</label>
+                            <input type="datetime-local" id="FECHA_HORA" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Comentarios</label>
+                            <textarea id="COMENTARIOS" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+const API = "https://localhost:44375/api/visitas";
+let modal = new bootstrap.Modal(document.getElementById("modalVisita"));
+
+function getHeaders() {
+    const token = localStorage.getItem("token");
+    return {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+    };
+}
+
+if (!localStorage.getItem("token")) {
+    alert("Sesión no iniciada. Redirigiendo al login...");
+    window.location.href = "login.html";
+}
+
+function cargarSelect(url, idSelect, campoTexto) {
+    fetch(url, { headers: getHeaders() })
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById(idSelect).innerHTML = data.map(o =>
+                `<option value="${o.ID}">${o[campoTexto]}</option>`
+            ).join("");
+        });
+}
+
+function mostrarSelects() {
+    cargarSelect("https://localhost:44375/api/propiedades/ConsultarTodos", "ID_PROPIEDAD", "TITULO");
+    cargarSelect("https://localhost:44375/api/clientes/ConsultarTodos", "ID_CLIENTE", "NOMBRES");
+    cargarSelect("https://localhost:44375/api/empleados/ConsultarTodos", "ID_EMPLEADO", "NOMBRES");
+    cargarSelect("https://localhost:44375/api/tipos_visita/ConsultarTodos", "ID_TIPO_VISITA", "DESCRIPCION");
+}
+
+function mostrarVisitas() {
+    fetch(`${API}/ConsultarTodos`, { headers: getHeaders() })
+        .then(res => res.json())
+        .then(data => {
+            const html = data.map(v => `
+        <tr>
+            <td>${v.ID_VISITA}</td>
+            <td>${v.PROPIEDAD?.TITULO || ''}</td>
+            <td>${v.CLIENTE?.NOMBRES} ${v.CLIENTE?.APELLIDOS}</td>
+            <td>${v.EMPLEADO?.NOMBRES} ${v.EMPLEADO?.APELLIDOS}</td>
+            <td>${v.TIPO_VISITA?.DESCRIPCION || ''}</td>
+            <td>${v.FECHA_HORA}</td>
+            <td>${v.COMENTARIOS}</td>
+            <td>
+                <button class="btn btn-sm btn-warning me-1" onclick='editar(${JSON.stringify(v)})'>Editar</button>
+                <button class="btn btn-sm btn-danger" onclick='eliminar(${v.ID_VISITA})'>Eliminar</button>
+            </td>
+        </tr>
+    `).join("");
+            document.getElementById("tabla-visitas").innerHTML = html;
+        });
+}
+
+
+function mostrarFormulario() {
+    document.getElementById("formVisita").reset();
+    document.getElementById("ID_VISITA").value = "";
+    mostrarSelects();
+    modal.show();
+}
+
+document.getElementById("formVisita").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const visita = {
+        ID_VISITA: parseInt(document.getElementById("ID_VISITA").value) || 0,
+        ID_PROPIEDAD: parseInt(document.getElementById("ID_PROPIEDAD").value),
+        ID_CLIENTE: parseInt(document.getElementById("ID_CLIENTE").value),
+        ID_EMPLEADO: parseInt(document.getElementById("ID_EMPLEADO").value),
+        ID_TIPO_VISITA: parseInt(document.getElementById("ID_TIPO_VISITA").value),
+        FECHA_HORA: document.getElementById("FECHA_HORA").value,
+        COMENTARIOS: document.getElementById("COMENTARIOS").value.trim()
+    };
+
+    const metodo = visita.ID_VISITA > 0 ? "PUT" : "POST";
+    const ruta = visita.ID_VISITA > 0 ? "Actualizar" : "Insertar";
+
+    fetch(`${API}/${ruta}`, {
+        method: metodo,
+        headers: getHeaders(),
+        body: JSON.stringify(visita)
+    })
+    .then(res => res.ok ? res : res.json().then(err => Promise.reject(err)))
+    .then(() => {
+        modal.hide();
+        mostrarVisitas();
+    })
+    .catch(err => alert("Error al guardar: " + err));
+});
+
+function editar(v) {
+    document.getElementById("ID_VISITA").value = v.ID_VISITA;
+    document.getElementById("ID_PROPIEDAD").value = v.PROPIEDAD?.ID_PROPIEDAD || '';
+    document.getElementById("ID_CLIENTE").value = v.CLIENTE?.ID_CLIENTE || '';
+    document.getElementById("ID_EMPLEADO").value = v.EMPLEADO?.ID_EMPLEADO || '';
+    document.getElementById("ID_TIPO_VISITA").value = v.TIPO_VISITA?.ID_TIPO_VISITA || '';
+    document.getElementById("FECHA_HORA").value = v.FECHA_HORA;
+    document.getElementById("COMENTARIOS").value = v.COMENTARIOS;
+    mostrarSelects();
+    modal.show();
+}
+
+
+function eliminar(id) {
+    if (!confirm("¿Deseas eliminar esta visita?")) return;
+
+    fetch(`${API}/Eliminar`, {
+        method: "DELETE",
+        headers: getHeaders(),
+        body: JSON.stringify({ ID_VISITA: id })
+    })
+    .then(res => res.ok ? mostrarVisitas() : res.json().then(err => Promise.reject(err)))
+    .catch(err => alert("Error al eliminar: " + err));
+}
+
+mostrarVisitas();
+    </script>
+</body>
+</html>
