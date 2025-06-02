@@ -53,23 +53,28 @@ namespace Borrador.Clases
         {
             try
             {
-                var v = db.VISITAS.Find(id);
-                if (v == null) return null;
+                var resultado = db.VISITAS
+                    .Where(v => v.ID_VISITA == id)
+                    .Select(v => new
+                    {
+                        v.ID_VISITA,
+                        PROPIEDAD = new { v.PROPIEDADE.ID_PROPIEDAD, v.PROPIEDADE.TITULO},
+                        CLIENTE = new {v.CLIENTE.ID_CLIENTE, v.CLIENTE.NOMBRES,v.CLIENTE.APELLIDOS},
+                        EMPLEADO = new { v.EMPLEADO.ID_EMPLEADO, v.EMPLEADO.NOMBRES, v.EMPLEADO.APELLIDOS },
+                        TIPO_VISITA = new {v.TIPOS_VISITA.ID_TIPO_VISITA, v.TIPOS_VISITA.DESCRIPCION},
+                        v.FECHA_HORA,
+                        v.COMENTARIOS
+                    }).FirstOrDefault();
+                    
+                if (resultado == null)
+                    return "Visita no encontrada,verifique el ID.";
 
-                return new
-                {
-                    v.ID_VISITA,
-                    v.ID_PROPIEDAD,
-                    v.ID_CLIENTE,
-                    v.ID_EMPLEADO,
-                    v.ID_TIPO_VISITA,
-                    v.FECHA_HORA,
-                    v.COMENTARIOS
-                };
+                return resultado;
+
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                return "Error al consultar visita: " + ex.Message;
             }
         }
 
