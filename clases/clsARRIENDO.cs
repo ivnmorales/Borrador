@@ -46,10 +46,11 @@ namespace Borrador.Clases
                     if (entidad == null || entidad.ID_ARRIENDO <= 0)
                         return "Datos de arriendo no válidos.";
 
-                    var existente = db.ARRIENDOS.Find(entidad.ID_ARRIENDO);
+                    var existente = db.ARRIENDOS.FirstOrDefault(a => a.ID_ARRIENDO == entidad.ID_ARRIENDO);
                     if (existente == null)
                         return "No se encontró el arriendo.";
 
+                  
                     if (!db.PROPIEDADES.Any(p => p.ID_PROPIEDAD == entidad.ID_PROPIEDAD))
                         return "La propiedad especificada no existe.";
                     if (!db.CLIENTES.Any(c => c.ID_CLIENTE == entidad.ID_INQUILINO))
@@ -57,7 +58,15 @@ namespace Borrador.Clases
                     if (!db.EMPLEADOS.Any(e => e.ID_EMPLEADO == entidad.ID_EMPLEADO))
                         return "El empleado especificado no existe.";
 
-                    db.Entry(entidad).State = EntityState.Modified;
+                  
+                    existente.ID_PROPIEDAD = entidad.ID_PROPIEDAD;
+                    existente.ID_INQUILINO = entidad.ID_INQUILINO;
+                    existente.ID_EMPLEADO = entidad.ID_EMPLEADO;
+                    existente.FECHA_INICIO = entidad.FECHA_INICIO;
+                    existente.FECHA_FIN = entidad.FECHA_FIN;
+                    existente.CANON_MENSUAL = entidad.CANON_MENSUAL;
+                    existente.DEPOSITO = entidad.DEPOSITO;
+
                     db.SaveChanges();
                     return "Arriendo actualizado correctamente";
                 }
@@ -67,6 +76,7 @@ namespace Borrador.Clases
                 return "Error al actualizar arriendo: " + ex.Message;
             }
         }
+
 
         public object Consultar(int id)
         {
