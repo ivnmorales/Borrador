@@ -6,132 +6,175 @@
     <title>Gestión de Clientes y Arriendos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
-        .spinner {
-            text-align: center;
-            padding: 2rem;
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        .form-control, .btn {
+            border-radius: 0.5rem;
+        }
+
+        .btn {
+            font-weight: 600;
+        }
+
+        .form-section {
+            background: #fff;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 0 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
         }
     </style>
 </head>
 <body class="bg-light">
     <div class="container py-4">
-        <h2 class="mb-4">Clientes Registrados</h2>
-        <div id="clientesSpinner" class="spinner">Cargando clientes...</div>
-        <table class="table table-bordered d-none" id="clientesTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Identificación</th>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
-                    <th>Teléfono</th>
-                    <th>Email</th>
-                    <th>Dirección</th>
-                </tr>
-            </thead>
-            <tbody id="clientesBody"></tbody>
-        </table>
+        <h2 class="mb-4">Gestión de Clientes</h2>
 
-        <h2 class="mb-4 mt-5">Contratos de Arriendo Activos</h2>
-        <div id="arriendosSpinner" class="spinner">Cargando arriendos...</div>
-        <table class="table table-bordered d-none" id="arriendosTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Propiedad</th>
-                    <th>Inquilino</th>
-                    <th>Empleado</th>
-                    <th>Inicio</th>
-                    <th>Fin</th>
-                </tr>
-            </thead>
-            <tbody id="arriendosBody"></tbody>
-        </table>
+        <!-- Formulario -->
+        <div class="form-section row g-3">
+            <input type="hidden" id="ID_CLIENTE">
+            <div class="col-md-4"><input class="form-control" id="IDENTIFICACION" placeholder="Identificación"></div>
+            <div class="col-md-4"><input class="form-control" id="NOMBRES" placeholder="Nombres"></div>
+            <div class="col-md-4"><input class="form-control" id="APELLIDOS" placeholder="Apellidos"></div>
+            <div class="col-md-4"><input class="form-control" id="TELEFONO" placeholder="Teléfono"></div>
+            <div class="col-md-4"><input class="form-control" id="EMAIL" placeholder="Correo"></div>
+            <div class="col-md-4"><input class="form-control" id="DIRECCION" placeholder="Dirección"></div>
+            <div class="col-12 text-center">
+                <button class="btn btn-success me-2" onclick="guardarCliente()">Insertar</button>
+                <button class="btn btn-primary me-2" onclick="actualizarCliente()">Actualizar</button>
+                <button class="btn btn-danger" onclick="eliminarCliente()">Eliminar</button>
+            </div>
+        </div>
+
+        <!-- Tabla de clientes -->
+        <div class="table-wrapper">
+            <table class="table table-bordered table-hover" id="clientesTable">
+                <thead class="table-dark text-center">
+                    <tr>
+                        <th>ID</th>
+                        <th>Identificación</th>
+                        <th>Nombre Completo</th>
+                        <th>Teléfono</th>
+                        <th>Email</th>
+                        <th>Dirección</th>
+                        <th>Editar</th>
+                    </tr>
+                </thead>
+                <tbody id="clientesBody"></tbody>
+            </table>
+        </div>
     </div>
 
     <script>
         const apiBase = "https://localhost:44375";
         const headers = {
-            "Authorization": `Bearer ${localStorage.getItem("token")}`
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json"
         };
 
         document.addEventListener("DOMContentLoaded", () => {
             cargarClientes();
-            cargarArriendos();
         });
 
+        function limpiarFormulario() {
+            ID_CLIENTE.value = "";
+            IDENTIFICACION.value = "";
+            NOMBRES.value = "";
+            APELLIDOS.value = "";
+            TELEFONO.value = "";
+            EMAIL.value = "";
+            DIRECCION.value = "";
+        }
+
         async function cargarClientes() {
-            try {
-                const res = await fetch(`${apiBase}/api/CLIENTEs/ConsultarTodos`, { headers });
-                const clientes = await res.json();
-                const tbody = document.getElementById("clientesBody");
-                tbody.innerHTML = "";
+            const res = await fetch(`${apiBase}/api/CLIENTEs/ConsultarTodos`, { headers });
+            const clientes = await res.json();
+            const tbody = document.getElementById("clientesBody");
+            tbody.innerHTML = "";
 
-                if (!clientes.length) {
-                    document.getElementById("clientesSpinner").innerText = "No hay clientes registrados.";
-                    return;
-                }
+            clientes.forEach(c => {
+                tbody.innerHTML += `
+                        <tr>
+                            <td>${c.ID_CLIENTE}</td>
+                            <td>${c.IDENTIFICACION}</td>
+                            <td>${c.NOMBRES} ${c.APELLIDOS}</td>
+                            <td>${c.TELEFONO ?? '-'}</td>
+                            <td>${c.EMAIL ?? '-'}</td>
+                            <td>${c.DIRECCION ?? '-'}</td>
+                            <td><button class="btn btn-sm btn-warning" onclick='cargarEdicion(${JSON.stringify(c)})'>Editar</button></td>
+                        </tr>`;
+            });
+        }
 
-                document.getElementById("clientesSpinner").classList.add("d-none");
-                document.getElementById("clientesTable").classList.remove("d-none");
+        function cargarEdicion(c) {
+            ID_CLIENTE.value = c.ID_CLIENTE;
+            IDENTIFICACION.value = c.IDENTIFICACION;
+            NOMBRES.value = c.NOMBRES;
+            APELLIDOS.value = c.APELLIDOS;
+            TELEFONO.value = c.TELEFONO;
+            EMAIL.value = c.EMAIL;
+            DIRECCION.value = c.DIRECCION;
+        }
 
-                clientes.forEach(c => {
-                    tbody.innerHTML += `
-                <tr>
-                  <td>${c.ID_CLIENTE}</td>
-                  <td>${c.IDENTIFICACION}</td>
-                  <td>${c.NOMBRES}</td>
-                  <td>${c.APELLIDOS}</td>
-                  <td>${c.TELEFONO ?? '-'}</td>
-                  <td>${c.EMAIL ?? '-'}</td>
-                  <td>${c.DIRECCION ?? '-'}</td>
-                </tr>`;
-                });
-            } catch (error) {
-                document.getElementById("clientesSpinner").innerText = "Error al cargar clientes.";
-                console.error("Error cargando clientes:", error);
+        async function guardarCliente() {
+            const cliente = recolectarDatos();
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Insertar`, {
+                method: "POST",
+                headers, body: JSON.stringify(cliente)
+            });
+            if (res.ok) {
+                alert("Cliente insertado");
+                limpiarFormulario();
+                cargarClientes();
+            } else {
+                alert(await res.text());
             }
         }
 
-        async function cargarArriendos() {
-            try {
-                const res = await fetch(`${apiBase}/api/ARRIENDOs/ConsultarTodos`, { headers });
-                const arriendos = await res.json();
-                const tbody = document.getElementById("arriendosBody");
-                tbody.innerHTML = "";
-
-                if (!arriendos.length) {
-                    document.getElementById("arriendosSpinner").innerText = "No hay arriendos activos.";
-                    return;
-                }
-
-                document.getElementById("arriendosSpinner").classList.add("d-none");
-                document.getElementById("arriendosTable").classList.remove("d-none");
-
-                for (const a of arriendos) {
-                    const propiedad = a.PROPIEDAD?.TITULO ?? `Propiedad ${a.ID_PROPIEDAD}`;
-                    const inquilino = a.CLIENTE?.NOMBRES ?? `Cliente ${a.ID_INQUILINO}`;
-                    const empleado = a.EMPLEADO?.NOMBRES ?? `Empleado ${a.ID_EMPLEADO}`;
-                    const fechaFin = a.FECHA_FIN ? formatearFecha(a.FECHA_FIN) : "Vigente";
-
-                    tbody.innerHTML += `
-                <tr>
-                  <td>${a.ID_ARRIENDO}</td>
-                  <td>${propiedad}</td>
-                  <td>${inquilino}</td>
-                  <td>${empleado}</td>
-                  <td>${formatearFecha(a.FECHA_INICIO)}</td>
-                  <td>${fechaFin}</td>
-                </tr>`;
-                }
-            } catch (error) {
-                document.getElementById("arriendosSpinner").innerText = "Error al cargar arriendos.";
-                console.error("Error cargando arriendos:", error);
+        async function actualizarCliente() {
+            const cliente = recolectarDatos();
+            if (!cliente.ID_CLIENTE) return alert("Seleccione un cliente para actualizar.");
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Actualizar`, {
+                method: "PUT",
+                headers, body: JSON.stringify(cliente)
+            });
+            if (res.ok) {
+                alert("Cliente actualizado");
+                limpiarFormulario();
+                cargarClientes();
+            } else {
+                alert(await res.text());
             }
         }
 
-        function formatearFecha(fecha) {
-            const d = new Date(fecha);
-            return d.toLocaleDateString("es-CO", { year: 'numeric', month: 'long', day: 'numeric' });
+        async function eliminarCliente() {
+            const id = ID_CLIENTE.value;
+            if (!id) return alert("Seleccione un cliente para eliminar.");
+            if (!confirm("¿Está seguro que desea eliminar este cliente?")) return;
+            const res = await fetch(`${apiBase}/api/CLIENTEs/Eliminar`, {
+                method: "DELETE",
+                headers, body: JSON.stringify({ ID_CLIENTE: id })
+            });
+            if (res.ok) {
+                alert("Cliente eliminado");
+                limpiarFormulario();
+                cargarClientes();
+            } else {
+                alert(await res.text());
+            }
+        }
+
+        function recolectarDatos() {
+            return {
+                ID_CLIENTE: parseInt(ID_CLIENTE.value) || 0,
+                IDENTIFICACION: IDENTIFICACION.value,
+                NOMBRES: NOMBRES.value,
+                APELLIDOS: APELLIDOS.value,
+                TELEFONO: TELEFONO.value,
+                EMAIL: EMAIL.value,
+                DIRECCION: DIRECCION.value
+            };
         }
     </script>
 </body>

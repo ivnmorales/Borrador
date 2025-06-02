@@ -4,26 +4,34 @@
     <meta charset="UTF-8">
     <title>Inmobiliaria - Inicio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Bootstrap -->
+    <!-- Bootstrap y Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
         body {
-            background: #f9f9f9;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Inter', sans-serif;
+            background: #f4f6f9;
+            color: #2c3e50;
+            margin: 0;
         }
 
         header {
-            background-color: #1a1d20;
+            background: #1e272e;
             padding: 1rem 0;
-            color: white;
         }
 
+            header h2 {
+                color: #fff;
+                margin: 0;
+            }
+
         .navbar .nav-link {
-            color: #eaeaea !important;
+            color: #f1f1f1 !important;
             margin-left: 1rem;
-            transition: 0.3s ease;
+            font-weight: 500;
+            transition: 0.3s;
         }
 
             .navbar .nav-link:hover {
@@ -31,36 +39,24 @@
             }
 
         .main-banner {
-            background: url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?fit=crop&w=1920&q=80') no-repeat center center;
-            background-size: cover;
+            background: linear-gradient(to right, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?fit=crop&w=1920&q=80') center/cover no-repeat;
             color: white;
             padding: 6rem 2rem;
-            border-radius: 12px;
+            border-radius: 1rem;
             text-align: center;
-            margin-bottom: 3rem;
-            position: relative;
-            overflow: hidden;
+            margin: 2rem auto;
+            max-width: 1100px;
         }
-
-            .main-banner::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0, 0, 0, 0.4);
-                z-index: -1;
-            }
 
         .btn-banner {
             background-color: #ffc107;
             color: #000;
-            padding: 0.7rem 1.8rem;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
             border: none;
-            border-radius: 30px;
-            margin-top: 1.5rem;
-            transition: 0.3s ease;
+            border-radius: 50px;
+            margin-top: 2rem;
+            transition: background 0.3s;
         }
 
             .btn-banner:hover {
@@ -69,33 +65,32 @@
 
         .card {
             border: none;
-            border-radius: 15px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-radius: 1rem;
+            transition: 0.3s ease-in-out;
         }
 
             .card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+                transform: translateY(-6px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.08);
             }
 
         footer {
-            background-color: #1a1d20;
-            color: #aaa;
+            background: #1e272e;
+            color: #ccc;
             text-align: center;
-            padding: 1rem 0; 
+            padding: 1rem;
             margin-top: 3rem;
             font-size: 0.9rem;
         }
 
-        /* Modal */
+        /* Modal Login */
         .login-modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.45);
             display: none;
             justify-content: center;
             align-items: center;
@@ -104,43 +99,44 @@
 
         .login-card {
             background: white;
-            border-radius: 20px;
+            border-radius: 1.2rem;
             padding: 2rem;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
         }
 
             .login-card h3 {
-                font-weight: 700;
                 margin-bottom: 1rem;
+                font-weight: 700;
             }
 
             .login-card .form-control {
-                border-radius: 10px;
-                padding: 10px;
+                border-radius: 0.75rem;
+                margin-bottom: 1rem;
             }
 
-            .login-card .btn-login {
-                background: linear-gradient(to right, #58a6ff, #2c82ff);
-                color: white;
-                border: none;
-                border-radius: 30px;
-                padding: 0.75rem;
-                font-weight: 600;
-                margin-top: 1rem;
-            }
+        .btn-login {
+            background: #007bff;
+            border: none;
+            color: white;
+            padding: 0.75rem;
+            width: 100%;
+            font-weight: 600;
+            border-radius: 50px;
+        }
 
-                .login-card .btn-login:hover {
-                    background: linear-gradient(to right, #2c82ff, #1f6fe1);
-                }
+            .btn-login:hover {
+                background: #0056b3;
+            }
 
         .close-btn {
             position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 1.5rem;
-            color: white;
+            top: 15px;
+            right: 20px;
+            font-size: 1.3rem;
+            color: #444;
             cursor: pointer;
         }
     </style>
@@ -160,40 +156,40 @@
         </div>
     </header>
 
-    <!-- Banner Principal -->
+    <!-- Banner -->
     <div class="container">
-        <section class="main-banner text-white">
-            <h1>Tu próximo hogar te espera</h1>
-            <p>Explora viviendas en venta, arriendo y proyectos nuevos en todo el país</p>
+        <section class="main-banner">
+            <h1 class="display-5 fw-bold">Tu próximo hogar te espera</h1>
+            <p class="lead">Explora propiedades, arriendos y nuevos proyectos en todo el país.</p>
             <button class="btn btn-banner" id="mostrarLogin">Ingresar al sistema</button>
         </section>
 
         <!-- Servicios -->
-        <div class="row text-center">
+        <div class="row text-center mt-5">
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm p-3">
+                <div class="card shadow-sm p-3">
                     <div class="card-body">
-                        <i class="fas fa-city text-primary"></i>
+                        <i class="fas fa-city fa-2x mb-2 text-primary"></i>
                         <h5 class="card-title">Proyectos Nuevos</h5>
-                        <p class="card-text">Conoce desarrollos modernos ubicados en las mejores zonas del país.</p>
+                        <p>Explora construcciones modernas en zonas exclusivas.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm p-3">
+                <div class="card shadow-sm p-3">
                     <div class="card-body">
-                        <i class="fas fa-home text-success"></i>
+                        <i class="fas fa-home fa-2x mb-2 text-success"></i>
                         <h5 class="card-title">Propiedades en Venta</h5>
-                        <p class="card-text">Casas, apartamentos y más opciones para cambiar tu estilo de vida.</p>
+                        <p>Encuentra tu hogar ideal entre cientos de opciones disponibles.</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm p-3">
+                <div class="card shadow-sm p-3">
                     <div class="card-body">
-                        <i class="fas fa-calendar-check text-warning"></i>
+                        <i class="fas fa-calendar-check fa-2x mb-2 text-warning"></i>
                         <h5 class="card-title">Visitas y Arriendos</h5>
-                        <p class="card-text">Agenda citas, consulta opciones disponibles y gestiona tus solicitudes.</p>
+                        <p>Programa visitas y revisa los arriendos activos fácilmente.</p>
                     </div>
                 </div>
             </div>
@@ -207,38 +203,30 @@
 
     <!-- Login Modal -->
     <div class="login-modal" id="loginModal">
-        <span class="close-btn" id="cerrarModal">&times;</span>
         <div class="login-card">
+            <span class="close-btn" id="cerrarModal">&times;</span>
             <h3 class="text-center"><i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión</h3>
             <form id="loginForm">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="username" placeholder="ejemplo@correo.com" required>
-                </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="password" placeholder="Tu contraseña" required>
-                </div>
-                <button type="submit" class="btn btn-login w-100">Ingresar</button>
-                <div id="mensaje" class="mt-3 text-danger text-center"></div>
+                <input type="email" class="form-control" id="username" placeholder="Correo electrónico" required>
+                <input type="password" class="form-control" id="password" placeholder="Contraseña" required>
+                <button type="submit" class="btn-login">Ingresar</button>
+                <div id="mensaje" class="text-danger mt-2 text-center"></div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- Script -->
     <script>
-        document.getElementById("mostrarLogin").onclick = () => {
-            document.getElementById("loginModal").style.display = "flex";
-        };
-        document.getElementById("abrirLogin").onclick = () => {
-            document.getElementById("loginModal").style.display = "flex";
-        };
+        const API_URL = 'https://localhost:44375/api/Login/Ingresar';
+
+        document.getElementById("mostrarLogin").onclick =
+            document.getElementById("abrirLogin").onclick = () => {
+                document.getElementById("loginModal").style.display = "flex";
+            };
+
         document.getElementById("cerrarModal").onclick = () => {
             document.getElementById("loginModal").style.display = "none";
         };
-
-        // Login lógica
-        const API_URL = 'https://localhost:44375/api/Login/Ingresar';
 
         document.getElementById('loginForm').addEventListener('submit', async function (e) {
             e.preventDefault();
@@ -247,22 +235,22 @@
             const mensaje = document.getElementById('mensaje');
 
             try {
-                const response = await fetch(API_URL, {
+                const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ Usuario: username, Clave: password })
                 });
 
-                if (response.ok) {
-                    const data = await response.json();
+                if (res.ok) {
+                    const data = await res.json();
                     localStorage.setItem('token', data.Token);
                     localStorage.setItem('usuario', data.Usuario);
                     window.location.href = "/Public/dashboard.html";
                 } else {
-                    mensaje.textContent = 'Credenciales incorrectas. Intenta de nuevo.';
+                    mensaje.textContent = "Credenciales incorrectas. Intenta nuevamente.";
                 }
-            } catch (error) {
-                mensaje.textContent = 'Error de conexión con el servidor.';
+            } catch {
+                mensaje.textContent = "Error de conexión con el servidor.";
             }
         });
     </script>
