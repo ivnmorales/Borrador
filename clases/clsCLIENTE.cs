@@ -74,7 +74,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.CLIENTES
+                var resultado = db.CLIENTES
                          .Where(c => c.ID_CLIENTE == id)
                          .Select(c => new
                          {
@@ -87,10 +87,13 @@ namespace Borrador.Clases
                              c.DIRECCION,
                              c.FECHA_REGISTRO
                          }).FirstOrDefault();
+                if (resultado == null)
+                    return "Cliente no encontrado, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                return "Error al consultar cliente: " + ex.Message;
             }
         }
 

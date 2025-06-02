@@ -82,13 +82,13 @@ namespace Borrador.Clases
                     }).FirstOrDefault();
 
                 if (empleado == null)
-                    return "Empleado no encontrado.";
+                    return "Empleado no encontrado, verifique el ID.";
 
                 return empleado;
             }
-            catch
+            catch(Exception ex) 
             {
-                return null;
+                return "Error al consultar empleado: " + ex.Message;
             }
         }
 

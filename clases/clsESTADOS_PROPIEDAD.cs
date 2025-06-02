@@ -64,7 +64,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.ESTADOS_PROPIEDAD
+                var resultado = db.ESTADOS_PROPIEDAD
                          .Where(e => e.ID_ESTADO_PROPIEDAD == id)
                          .Select(e => new
                          {
@@ -72,10 +72,13 @@ namespace Borrador.Clases
                              e.DESCRIPCION
                          })
                          .FirstOrDefault();
+                if (resultado == null)
+                    return "Estado de propiedad no encontrado, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                return "Error al consultar estado de propiedad: " + ex.Message;
             }
         }
 

@@ -74,7 +74,7 @@ namespace Borrador.Clases
             {
                 using (var db = new INMOBILIARIAEntities())
                 {
-                    return db.ARRIENDOS
+                    var resultado = db.ARRIENDOS
                         .Where(a => a.ID_ARRIENDO == id)
                         .Select(a => new
                         {
@@ -87,11 +87,15 @@ namespace Borrador.Clases
                             CLIENTE = new { a.CLIENTE.ID_CLIENTE, a.CLIENTE.NOMBRES },
                             EMPLEADO = new { a.EMPLEADO.ID_EMPLEADO, a.EMPLEADO.NOMBRES }
                         }).FirstOrDefault();
+
+                    if (resultado == null)
+                        return "Arriendo no encontrado, verifique el ID.";
+                    return resultado;
                 }
             }
-            catch
+            catch (Exception ex) 
             {
-                return null;
+                return "Error al consultar arriendo: " + ex.Message;
             }
         }
 

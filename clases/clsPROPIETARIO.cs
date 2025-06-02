@@ -70,7 +70,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.PROPIETARIOS
+                var resultado = db.PROPIETARIOS
                     .Where(p => p.ID_PROPIETARIO == id)
                     .Select(p => new
                     {
@@ -82,10 +82,13 @@ namespace Borrador.Clases
                         p.EMAIL,
                         p.DIRECCION
                     }).FirstOrDefault();
+                if (resultado == null)
+                    return "Propietario no encontrado, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch(Exception ex)
             {
-                return null;
+                return "Error al consultar propietario: " + ex.Message;
             }
         }
 

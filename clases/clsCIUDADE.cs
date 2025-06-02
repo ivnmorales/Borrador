@@ -61,7 +61,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.CIUDADES
+                var resultado = db.CIUDADES
                          .Where(c => c.ID_CIUDAD == id)
                          .Select(c => new
                          {
@@ -69,10 +69,14 @@ namespace Borrador.Clases
                              c.NOMBRE,
                              c.DEPARTAMENTO
                          }).FirstOrDefault();
+
+                if (resultado == null)
+                    return "Ciudad no encontrada, verifique el ID.";
+                return resultado;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al ciudad: " + ex.Message;
             }
         }
 

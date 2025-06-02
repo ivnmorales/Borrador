@@ -85,7 +85,7 @@ namespace Borrador.Clases
                                 .FirstOrDefault();
 
                 if (detalle == null)
-                    return "Detalles de orden no encontrados.";
+                    return "Detalles de orden no encontrados, verifique el ID.";
 
                 return detalle;
             }
