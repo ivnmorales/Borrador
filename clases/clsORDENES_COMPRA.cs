@@ -62,7 +62,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.ORDENES_COMPRA
+                var orden = db.ORDENES_COMPRA
                     .Where(o => o.ID_ORDEN == id)
                     .Select(o => new
                     {
@@ -75,12 +75,18 @@ namespace Borrador.Clases
                         o.TOTAL
                     })
                     .FirstOrDefault();
+
+                if (orden == null)
+                    return "Orden de compra no encontrada.";
+
+                return orden;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar orden de compra: " + ex.Message;
             }
         }
+
 
         public List<object> ConsultarTodos()
         {

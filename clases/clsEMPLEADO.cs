@@ -64,7 +64,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.EMPLEADOS
+                var empleado = db.EMPLEADOS
                     .Where(e => e.ID_EMPLEADO == id)
                     .Select(e => new
                     {
@@ -80,6 +80,11 @@ namespace Borrador.Clases
                         e.SALARIO,
                         e.ID_SEDE
                     }).FirstOrDefault();
+
+                if (empleado == null)
+                    return "Empleado no encontrado.";
+
+                return empleado;
             }
             catch
             {

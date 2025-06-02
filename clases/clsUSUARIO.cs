@@ -28,7 +28,12 @@ namespace Borrador.Clases
             }
             catch (Exception ex)
             {
-                return "Error al registrar usuario: " + ex.Message;
+                Exception realEx = ex;
+                while (realEx.InnerException != null)
+                {
+                    realEx = realEx.InnerException;
+                }
+                return "Error al registrar usuario: " + realEx.Message;
             }
         }
 
@@ -60,7 +65,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.USUARIOS
+                var usuario = db.USUARIOS
                     .Where(u => u.ID_USUARIO == id)
                     .Select(u => new
                     {
@@ -70,10 +75,15 @@ namespace Borrador.Clases
                         u.FECHA_REGISTRO
                     })
                     .FirstOrDefault();
+
+                if (usuario == null)
+                    return "Usuario no encontrado.";
+
+                return usuario;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar usuario: " + ex.Message;
             }
         }
 
@@ -81,7 +91,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.USUARIOS
+                var usuario = db.USUARIOS
                     .Where(u => u.EMAIL == email)
                     .Select(u => new
                     {
@@ -91,10 +101,15 @@ namespace Borrador.Clases
                         u.FECHA_REGISTRO
                     })
                     .FirstOrDefault();
+
+                if (usuario == null)
+                    return "Usuario no encontrado.";
+
+                return usuario;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar usuario por email: " + ex.Message;
             }
         }
 

@@ -65,7 +65,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.TIPOS_PROVEEDOR
+                var tipoProveedor = db.TIPOS_PROVEEDOR
                     .Where(tp => tp.ID_TIPO_PROVEEDOR == id)
                     .Select(tp => new
                     {
@@ -73,12 +73,18 @@ namespace Borrador.Clases
                         tp.DESCRIPCION
                     })
                     .FirstOrDefault();
+
+                if (tipoProveedor == null)
+                    return "Tipo de proveedor no encontrado.";
+
+                return tipoProveedor;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar tipo de proveedor: " + ex.Message;
             }
         }
+
 
         public List<object> ConsultarTodos()
         {

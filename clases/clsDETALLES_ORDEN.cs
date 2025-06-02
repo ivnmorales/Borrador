@@ -67,28 +67,34 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.DETALLES_ORDEN
-                         .Where(d => d.ID_DETALLE == id)
-                         .Select(d => new
-                         {
-                             d.ID_DETALLE,
-                             d.DESCRIPCION,
-                             d.CANTIDAD,
-                             d.PRECIO_UNITARIO,
-                             d.ID_ORDEN,
-                             ORDEN = new
-                             {
-                                 d.ORDENES_COMPRA.ID_ORDEN,
-                                 d.ORDENES_COMPRA.FECHA_ORDEN
-                             }
-                         })
-                         .FirstOrDefault();
+                var detalle = db.DETALLES_ORDEN
+                                .Where(d => d.ID_DETALLE == id)
+                                .Select(d => new
+                                {
+                                    d.ID_DETALLE,
+                                    d.DESCRIPCION,
+                                    d.CANTIDAD,
+                                    d.PRECIO_UNITARIO,
+                                    d.ID_ORDEN,
+                                    ORDEN = new
+                                    {
+                                        d.ORDENES_COMPRA.ID_ORDEN,
+                                        d.ORDENES_COMPRA.FECHA_ORDEN
+                                    }
+                                })
+                                .FirstOrDefault();
+
+                if (detalle == null)
+                    return "Detalles de orden no encontrados.";
+
+                return detalle;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return $"Error al consultar detalles de orden: {ex.Message}";
             }
         }
+
 
         public List<object> ConsultarTodos()
         {

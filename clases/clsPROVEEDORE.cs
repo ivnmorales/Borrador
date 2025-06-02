@@ -65,7 +65,7 @@ namespace Borrador.Clases
         {
             try
             {
-                return db.PROVEEDORES
+                var proveedor = db.PROVEEDORES
                     .Where(p => p.ID_PROVEEDOR == id)
                     .Select(p => new
                     {
@@ -76,12 +76,18 @@ namespace Borrador.Clases
                         p.EMAIL,
                         p.ID_TIPO_PROVEEDOR
                     }).FirstOrDefault();
+
+                if (proveedor == null)
+                    return "Proveedor no encontrado.";
+
+                return proveedor;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                return "Error al consultar proveedor: " + ex.Message;
             }
         }
+
 
         public List<object> ConsultarTodos()
         {
