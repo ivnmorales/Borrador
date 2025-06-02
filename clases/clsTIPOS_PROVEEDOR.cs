@@ -75,7 +75,7 @@ namespace Borrador.Clases
                     .FirstOrDefault();
 
                 if (tipoProveedor == null)
-                    return "Tipo de proveedor no encontrado.";
+                    return "Tipo de proveedor no encontrado, verifique el ID.";
 
                 return tipoProveedor;
             }

@@ -78,7 +78,7 @@ namespace Borrador.Clases
                     }).FirstOrDefault();
 
                 if (proveedor == null)
-                    return "Proveedor no encontrado.";
+                    return "Proveedor no encontrado, verifique el ID.";
 
                 return proveedor;
             }

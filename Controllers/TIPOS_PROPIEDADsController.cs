@@ -5,7 +5,7 @@ using System.Web.Http;
 
 namespace Borrador.Controllers
 {
-    [RoutePrefix("api/TIPOS_PROPIEDADs")]
+    [RoutePrefix("api/tipos_propiedad")]
     public class TIPOS_PROPIEDADsController : ApiController
     {
         [HttpGet]
